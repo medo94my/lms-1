@@ -1,0 +1,159 @@
+/* ============================================================
+   Basiret Vakfi LMS — Brand Theme (Phase 1)
+   Token-based theme layered over frappe-ui. Source of truth:
+   design-docs/COLORS_TOKENS.md. Green primary + gold accent,
+   Arabic-first (Tajawal/Cairo) typography.
+
+   NOTE: token overrides use `!important` on the custom-property
+   declarations so they win over frappe-ui's :root/[data-theme]
+   definitions regardless of dev injection order.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root,
+:root[data-theme='light'],
+[data-theme='dark'] {
+	/* --- Brand palette (from COLORS_TOKENS.md) --- */
+	--color-primary-500: #0e8f58;
+	--color-primary-700: #075536;
+	--color-gold-500: #c6a63a;
+	--font-arabic: 'Tajawal', 'Cairo', sans-serif;
+	--font-latin: 'Inter', sans-serif;
+
+	/* Remap frappe-ui BLUE accent family -> brand GREEN (links, active
+	   nav, focus rings, selected/info states). Shades 1(light)->10(dark). */
+	--surface-blue-1: #eaf5ef !important;
+	--surface-blue-2: #d5eadf !important;
+	--surface-blue-3: #abd5bf !important;
+	--surface-blue-4: #80bf9e !important;
+	--surface-blue-5: #56aa7e !important;
+	--surface-blue-6: #0e8f58 !important;
+	--surface-blue-7: #0a7448 !important;
+	--surface-blue-8: #075536 !important;
+	--surface-blue-9: #063f2b !important;
+	--surface-blue-10: #03291c !important;
+
+	--outline-blue-1: #eaf5ef !important;
+	--outline-blue-2: #d5eadf !important;
+	--outline-blue-3: #abd5bf !important;
+	--outline-blue-4: #80bf9e !important;
+	--outline-blue-5: #56aa7e !important;
+	--outline-blue-6: #0e8f58 !important;
+	--outline-blue-7: #0a7448 !important;
+	--outline-blue-8: #075536 !important;
+	--outline-blue-9: #063f2b !important;
+	--outline-blue-10: #03291c !important;
+
+	--ink-blue-1: #ffffff !important;
+	--ink-blue-2: #d5eadf !important;
+	--ink-blue-3: #abd5bf !important;
+	--ink-blue-4: #56aa7e !important;
+	--ink-blue-5: #0e8f58 !important;
+	--ink-blue-6: #0a7448 !important;
+	--ink-blue-7: #075536 !important;
+	--ink-blue-8: #063f2b !important;
+	--ink-blue-9: #03291c !important;
+	--ink-blue-10: #03291c !important;
+
+	/* Green family -> brand green (success/brand). */
+	--surface-green-5: #56aa7e !important;
+	--surface-green-6: #0e8f58 !important;
+	--surface-green-7: #0a7448 !important;
+	--surface-green-8: #075536 !important;
+	--ink-green-6: #0a7448 !important;
+	--ink-green-7: #075536 !important;
+	--outline-green-6: #0e8f58 !important;
+	--outline-green-7: #0a7448 !important;
+
+	/* PRIMARY (solid) buttons: frappe-ui uses the dark gray scale. Point its
+	   darkest surfaces at brand green so primary actions read as brand. */
+	--surface-gray-7: #0a7448 !important;
+	--surface-gray-8: #075536 !important;
+	--surface-gray-9: #063f2b !important;
+	/* Resting bg of the solid PRIMARY button is bg-surface-gray-10 (frappe-ui
+	   Button.vue: solid `gray` = bg-surface-gray-10 hover:gray-9 active:gray-8).
+	   Default --surface-gray-10 is #171717 (black), so the button renders black
+	   at rest. Map it to brand primary-700 = #075536 (COLORS_TOKENS.md
+	   --button-primary-bg); hover then uses gray-9 #063f2b
+	   (--button-primary-bg-hover). */
+	--surface-gray-10: #075536 !important;
+}
+
+/* NOTE: page-background cream is intentionally NOT done by overriding
+   --surface-base. That token also backs cards/header/inputs (and 45 app
+   `bg-surface-base` surfaces), which must stay WHITE. The cream page comes
+   from the layout wrapper instead (DesktopLayout.vue: bg-[#fbf8f0]), keeping
+   cards white. The `body { background-color: #fbf8f0 }` rule below is the
+   uncovered-area fallback. */
+
+/* ----------------------------------------------------------
+   Typography. Latin default = Inter; Arabic / RTL = Tajawal.
+   ---------------------------------------------------------- */
+body {
+	font-family: var(--font-latin);
+}
+html[dir='rtl'],
+html[dir='rtl'] body,
+html[dir='rtl'] :not(pre):not(code):not([class*='mono']) {
+	font-family: var(--font-arabic);
+}
+code,
+pre,
+[class*='mono'] {
+	font-family: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
+}
+
+/* ----------------------------------------------------------
+   VISIBILITY CONFIRM (Phase 1 baseline): soft cream page
+   background so the brand is unmistakable on every page.
+   ---------------------------------------------------------- */
+body {
+	background-color: #fbf8f0;
+}
+
+/* ----------------------------------------------------------
+   Deep-green sidebar (app chrome). The sidebar root uses
+   `bg-surface-sidebar` (AppSidebar.vue / DesktopLayout.vue), so remap that
+   token to brand deep green. CSS custom properties INHERIT, so redefining the
+   ink + hover/active surface tokens on the `.bg-surface-sidebar` subtree
+   recolors every `text-ink-gray-*` / `hover:bg-surface-gray-2` /
+   `bg-surface-elevation-3` descendant without editing the components.
+   RTL-safe: no physical-direction properties here (logical layout lives in the
+   components via border-e / ps- / ms-).
+   NOTE: this is the user's choice; DESIGN.md specifies a white navbar — the top
+   header is deliberately left white, only the side nav is green.
+   ---------------------------------------------------------- */
+.bg-surface-sidebar {
+	--surface-sidebar: #063f2b !important; /* primary-800 deep green */
+	/* Invert nav text/icons (text-ink-gray-5/7/8/9) for contrast on green. */
+	--ink-gray-4: #9ec9b5 !important;
+	--ink-gray-5: #b9d8c9 !important;
+	--ink-gray-6: #cfe8db !important;
+	--ink-gray-7: #e3f1ea !important;
+	--ink-gray-8: #ffffff !important;
+	--ink-gray-9: #ffffff !important;
+	/* Nav item hover + active surfaces: light translucent over green. */
+	--surface-gray-2: rgba(
+		255,
+		255,
+		255,
+		0.1
+	) !important; /* hover:bg-surface-gray-2 */
+	--surface-gray-3: rgba(255, 255, 255, 0.16) !important;
+	--surface-elevation-3: rgba(
+		255,
+		255,
+		255,
+		0.16
+	) !important; /* active item */
+}
+/* Reset nested LIGHT-bg cards inside the sidebar back to dark inks so their
+   text stays readable (AppSidebar 'Complete your profile' card = bg-surface-base;
+   read-only banner = bg-surface-elevation-2). */
+.bg-surface-sidebar .bg-surface-base,
+.bg-surface-sidebar .bg-surface-elevation-2 {
+	--ink-gray-7: #5f5b54 !important;
+	--ink-gray-8: #181818 !important;
+	--ink-gray-9: #181818 !important;
+}

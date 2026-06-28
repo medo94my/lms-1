@@ -3,7 +3,10 @@
 		<div class="h-full border-e bg-surface-sidebar">
 			<AppSidebar />
 		</div>
-		<div class="flex-1 flex flex-col h-full overflow-auto bg-surface-base">
+		<!-- Page content panel: cream (#fbf8f0 / cream-100) so the page reads as
+		     brand while cards/modals/header stay white (those use bg-white /
+		     --surface-elevation-* / --surface-base, left untouched). -->
+		<div class="flex-1 flex flex-col h-full overflow-auto bg-[#fbf8f0]">
 			<slot />
 		</div>
 	</div>

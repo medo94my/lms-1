@@ -1,6 +1,7 @@
 @import 'frappe-ui/style.css';
 @import './styles/codemirror.css';
 @import './styles/blockEditor.css';
+@import './styles/basiret-theme.css';
 
 /*
  * This frappe-ui build resolves --surface-sidebar to transparent white

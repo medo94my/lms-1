@@ -150,7 +150,7 @@
 
 <script setup lang="ts">
 import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
-import { computed, inject } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { createResource, Badge } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils/'
 import type { SessionUser } from '@/types/api'
@@ -186,8 +186,20 @@ const outline = createResource({
 	makeParams() {
 		return { course: props.course.data?.name, progress: false }
 	},
-	auto: true,
+	auto: false,
 }) as Resource<OutlineChapter[]>
+
+// The parent loads `course` asynchronously, so `course.data?.name` is
+// undefined on mount. Firing the resource then sends a request without the
+// required `course` arg, which makes the backend raise a 500 TypeError.
+// Only fetch the outline once the course name is actually available.
+watch(
+	() => props.course.data?.name,
+	(name) => {
+		if (name) outline.reload()
+	},
+	{ immediate: true }
+)
 
 const outlineStats = computed(() => {
 	const chapters = outline.data || []

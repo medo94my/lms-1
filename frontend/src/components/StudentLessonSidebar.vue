@@ -59,7 +59,7 @@
 											chapterNumber: lesson.number.split('-')[0],
 											lessonNumber: lesson.number.split('-')[1],
 										},
-								  }
+									}
 						"
 						class="flex items-center gap-3 rounded ps-9 pe-3 py-2 text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
 						:class="[
@@ -70,10 +70,10 @@
 						]"
 						@click="
 							inlineSelect &&
-								emit('select-lesson', {
-									chapterNumber: lesson.number.split('-')[0],
-									lessonNumber: lesson.number.split('-')[1],
-								})
+							emit('select-lesson', {
+								chapterNumber: lesson.number.split('-')[0],
+								lessonNumber: lesson.number.split('-')[1],
+							})
 						"
 					>
 						<component
@@ -135,12 +135,19 @@ const outline = createResource({
 			progress: props.withProgress,
 		}
 	},
-	auto: true,
+	auto: false,
 })
 
+// courseName can be undefined on mount when the parent loads the course
+// asynchronously. Firing then sends a request without the required `course`
+// arg (frappe-ui drops undefined params), and the backend raises a 500
+// TypeError. Only fetch once the name is actually available.
 watch(
 	() => props.courseName,
-	() => outline.reload()
+	(name) => {
+		if (name) outline.reload()
+	},
+	{ immediate: true },
 )
 
 // Re-runs whenever either source updates so a completion event that

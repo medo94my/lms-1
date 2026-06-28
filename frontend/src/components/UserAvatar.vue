@@ -9,7 +9,7 @@
 	>
 		<template v-if="user.open_to === 'Work'" #indicator>
 			<Tooltip :text="__('Open to Work')" placement="right">
-				<div class="rounded-full bg-surface-green-3 w-fit">
+				<div class="rounded-full bg-primary-600 w-fit">
 					<span
 						class="lucide-badge-check"
 						:class="'text-ink-base ' + checkSize"
@@ -19,7 +19,7 @@
 		</template>
 		<template v-else-if="user.open_to === 'Hiring'" #indicator>
 			<Tooltip :text="__('Hiring')" placement="right">
-				<div class="rounded-full bg-gold-500 w-fit">
+				<div class="rounded-full bg-gold-700 w-fit">
 					<span
 						class="lucide-badge-check"
 						:class="'text-ink-base ' + checkSize"

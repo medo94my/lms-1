@@ -3,10 +3,13 @@
 		<div class="h-full border-e bg-surface-sidebar">
 			<AppSidebar />
 		</div>
-		<!-- Page content panel: cream (#fbf8f0 / cream-100) so the page reads as
-		     brand while cards/modals/header stay white (those use bg-white /
-		     --surface-elevation-* / --surface-base, left untouched). -->
-		<div class="flex-1 flex flex-col h-full overflow-auto bg-[#fbf8f0]">
+		<!-- Page content panel: theme-aware via --lms-page-bg (basiret-theme.css):
+		     cream (#fbf8f0) in light, dark neutral (#171717) in dark. Cards/modals/
+		     header stay white. Using a CSS var (not a dark: variant) keeps this
+		     deterministic and independent of JIT variant emission. -->
+		<div
+			class="flex-1 flex flex-col h-full overflow-auto bg-[var(--lms-page-bg)]"
+		>
 			<slot />
 		</div>
 	</div>

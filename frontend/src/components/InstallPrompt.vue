@@ -7,7 +7,7 @@
 			<p>
 				{{
 					__(
-						'Get the app on your device for easy access & a better experience!'
+						'Get the app on your device for easy access & a better experience!',
 					)
 				}}
 			</p>
@@ -43,13 +43,13 @@
 						<span class="leading-5">
 							{{
 								__(
-									'Get the app on your iPhone for easy access & a better experience'
+									'Get the app on your iPhone for easy access & a better experience',
 								)
 							}}
 						</span>
 						<span class="inline-flex items-start whitespace-nowrap">
 							<span>{{ __('Tap') }}&nbsp;</span>
-							<span class="lucide-share size-4 text-blue-600" />
+							<span class="lucide-share size-4 text-ink-gray-7" />
 							<span>&nbsp;{{ __("and then 'Add to Home Screen'") }}</span>
 						</span>
 					</span>

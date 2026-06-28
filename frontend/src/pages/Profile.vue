@@ -79,7 +79,7 @@
 									:class="
 										profile.data.open_to === 'Work'
 											? 'bg-surface-green-3'
-											: 'bg-purple-500'
+											: 'bg-gold-500'
 									"
 								>
 									<span class="lucide-badge-check text-ink-base size-5" />
@@ -234,7 +234,7 @@ watch(
 	() => props.username,
 	() => {
 		profile.reload()
-	}
+	},
 )
 
 const editProfile = () => {

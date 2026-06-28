@@ -1,6 +1,18 @@
+> **Status — target design spec (roadmap), not current-state.** As of 2026-06, the
+> app is the upstream Frappe LMS Vue SPA **recolored via frappe-ui token overrides**
+> (`frontend/src/styles/basiret-theme.css`, `frontend/tailwind.config.js`). The
+> bespoke marketing site, custom components, footer, auth pages, and homepage
+> sections described below are largely **not yet built**. Section tags —
+> `[IMPLEMENTED]` / `[PARTIAL]` / `[TARGET — not built]` — mark what is live today vs.
+> aspirational; `> **Current:**` notes flag where this spec differs from the running
+> app. The design vision here is preserved as the roadmap.
+
 # design.md
 
-## Project
+## Project  [PARTIAL]
+
+> **Current:** The brand identity (deep-green / gold / cream) is applied via the
+> frappe-ui token theme. The standalone bespoke platform described below is aspirational.
 
 Educational Islamic learning platform for **Basiret Vakfi / وقف بصيرة**.
 
@@ -9,7 +21,10 @@ It is inspired by Islamic architecture, Quranic learning, Arabic education platf
 
 ---
 
-## Brand Direction
+## Brand Direction  [PARTIAL]
+
+> **Current:** Deep-green primary, gold accent, and cream backgrounds are live via
+> the token theme; Islamic geometric background patterns are not implemented.
 
 ### Brand Personality
 
@@ -29,7 +44,11 @@ The design should avoid visual clutter. Islamic geometric patterns may be used l
 
 ---
 
-## Layout Direction
+## Layout Direction  [PARTIAL]
+
+> **Current:** Courses, Course detail, and the student dashboard exist.
+> Teacher-profile, About, Contact, and the marketing Homepage do not; login/register
+> is the Frappe backend page, not an SPA page.
 
 ### Website Type
 
@@ -48,9 +67,16 @@ Educational platform / LMS website similar to Frappe-style clean interfaces.
 
 ---
 
-## Homepage Structure
+## Homepage Structure  [TARGET — not built]
+
+> **Current:** There is no marketing homepage. `/` redirects guests to `/courses`;
+> logged-in users see a dashboard ("Hey {name} 👋"), not this hero/stats/feature layout.
 
 ### 1. Header / Navbar
+
+> **Current:** Navigation is the frappe-ui left **sidebar** (deep-green), not a top
+> navbar; there is no cart, and the active item uses a gold inline-start border, not
+> a nav underline.
 
 The navbar should include:
 
@@ -177,11 +203,17 @@ CTA:
 
 ---
 
-## Components
+## Components  [PARTIAL]
+
+> **Current:** Components are stock frappe-ui, recolored by token overrides — not
+> bespoke builds.
 
 ### Buttons
 
 #### Primary Button
+
+> **Current:** Buttons are the frappe-ui `Button` (rounded-md), recolored brand-green
+> via token overrides — no pill radius and no gold-border secondary variant.
 
 Use for main actions:
 
@@ -270,6 +302,10 @@ Fields:
 
 ### Tabs
 
+> **Current:** The real course-detail tabs are Overview / Dashboard / Course editor /
+> Settings (instructor-facing); the student view renders curriculum and reviews inline,
+> not these five Arabic tabs.
+
 Used on course detail pages.
 
 Tabs:
@@ -339,7 +375,9 @@ Example:
 
 ---
 
-### Footer
+### Footer  [TARGET — not built]
+
+> **Current:** No footer component exists in the SPA.
 
 Footer should use deep green background.
 
@@ -354,7 +392,7 @@ Include:
 
 ---
 
-## Icon Style
+## Icon Style  [PARTIAL]
 
 Use thin line icons.
 
@@ -382,7 +420,10 @@ Icon style:
 
 ---
 
-## Typography
+## Typography  [PARTIAL]
+
+> **Current:** Tajawal, Cairo, and Inter are loaded and wired (`--font-arabic` /
+> `--font-latin`); **Poppins is not loaded**.
 
 Arabic:
 Use `Tajawal` or `Cairo`.
@@ -399,7 +440,7 @@ Recommended usage:
 
 ---
 
-## Design Rules
+## Design Rules  [PARTIAL]
 
 1. Use green for trust, education, and primary actions.
 2. Use gold only as an accent, not as the main background.
@@ -414,7 +455,7 @@ Recommended usage:
 
 ---
 
-## UI Feel
+## UI Feel  [TARGET — not built]
 
 The final website should feel like:
 

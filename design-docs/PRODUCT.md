@@ -1,3 +1,12 @@
+> **Status — target design spec (roadmap), not current-state.** As of 2026-06, the
+> app is the upstream Frappe LMS Vue SPA **recolored via frappe-ui token overrides**
+> (`frontend/src/styles/basiret-theme.css`, `frontend/tailwind.config.js`). The
+> bespoke marketing site, custom components, footer, auth pages, and homepage
+> sections described below are largely **not yet built**. Section tags —
+> `[IMPLEMENTED]` / `[PARTIAL]` / `[TARGET — not built]` — mark what is live today vs.
+> aspirational; `> **Current:**` notes flag where this spec differs from the running
+> app. The design vision here is preserved as the roadmap.
+
 # product.md
 
 # Basiret Vakfi LMS
@@ -10,7 +19,7 @@ Version: 1.0
 
 ---
 
-# Objective
+# Objective  [IMPLEMENTED]
 
 Transform the default Frappe LMS interface into a premium modern Islamic educational platform while preserving all existing Frappe functionality.
 
@@ -36,7 +45,7 @@ Only modernize:
 
 ---
 
-# Design Goals
+# Design Goals  [TARGET — not built]
 
 The interface should feel like:
 
@@ -57,7 +66,7 @@ combined with
 
 ---
 
-# Design Principles
+# Design Principles  [PARTIAL]
 
 ## Simplicity
 
@@ -105,7 +114,7 @@ RTL support.
 
 ---
 
-# Technical Constraints
+# Technical Constraints  [IMPLEMENTED]
 
 The following MUST NOT be modified:
 
@@ -141,7 +150,10 @@ Use custom app
 
 ---
 
-# Branding
+# Branding  [PARTIAL]
+
+> **Current:** The green/gold theme is applied globally via tokens. Logo, branded
+> emails, certificates, and PDFs are not yet rebranded.
 
 Apply Basiret Vakfi branding globally.
 
@@ -175,7 +187,7 @@ Student portal
 
 ---
 
-# Theme
+# Theme  [IMPLEMENTED]
 
 Implement a global theme.
 
@@ -189,7 +201,10 @@ Do NOT hardcode colors.
 
 ---
 
-# Navigation
+# Navigation  [PARTIAL]
+
+> **Current:** Navigation is the frappe-ui left sidebar, recolored deep-green; there
+> is no rebuilt top navbar or language switcher.
 
 Replace default navigation.
 
@@ -227,7 +242,10 @@ Bottom navigation (optional)
 
 ---
 
-# Homepage
+# Homepage  [TARGET — not built]
+
+> **Current:** No marketing homepage; `/` redirects guests to `/courses` and shows a
+> dashboard for logged-in users.
 
 Replace default LMS homepage.
 
@@ -257,7 +275,7 @@ All sections should be CMS editable.
 
 ---
 
-# Dashboard
+# Dashboard  [PARTIAL]
 
 Modernize student dashboard.
 
@@ -285,7 +303,7 @@ Quick Actions
 
 ---
 
-# Course Listing
+# Course Listing  [PARTIAL]
 
 Replace grid.
 
@@ -313,7 +331,7 @@ Hover animation
 
 ---
 
-# Course Detail
+# Course Detail  [PARTIAL]
 
 Sections
 
@@ -345,7 +363,10 @@ Estimated completion
 
 ---
 
-# Lesson Player
+# Lesson Player  [IMPLEMENTED]
+
+> **Current:** Implemented via native frappe-ui LMS (sidebar, notes, discussion,
+> video/PDF/quiz blocks, mark-complete).
 
 Split layout.
 
@@ -377,7 +398,7 @@ Quiz support
 
 ---
 
-# Dashboard Sidebar
+# Dashboard Sidebar  [PARTIAL]
 
 Modernize.
 
@@ -393,7 +414,7 @@ Dark/light ready
 
 ---
 
-# Forms
+# Forms  [PARTIAL]
 
 Replace all forms.
 
@@ -411,7 +432,7 @@ Consistent errors.
 
 ---
 
-# Buttons
+# Buttons  [PARTIAL]
 
 Replace all button styles.
 
@@ -431,7 +452,7 @@ FAB (optional)
 
 ---
 
-# Cards
+# Cards  [PARTIAL]
 
 Replace every card.
 
@@ -447,7 +468,7 @@ Responsive
 
 ---
 
-# Tables
+# Tables  [TARGET — not built]
 
 Modernize DataTables.
 
@@ -465,7 +486,7 @@ Better empty state
 
 ---
 
-# Dialogs
+# Dialogs  [PARTIAL]
 
 Replace dialogs.
 
@@ -481,7 +502,7 @@ Better spacing
 
 ---
 
-# Notifications
+# Notifications  [PARTIAL]
 
 Modern toast notifications.
 
@@ -497,7 +518,7 @@ Bottom-right placement.
 
 ---
 
-# Search
+# Search  [PARTIAL]
 
 Modern global search.
 
@@ -515,7 +536,10 @@ Search lessons.
 
 ---
 
-# Authentication
+# Authentication  [TARGET — not built]
+
+> **Current:** Auth uses the stock Frappe backend `/login`; there are no SPA
+> login/register/OTP pages.
 
 Redesign:
 
@@ -535,7 +559,7 @@ Use branded illustrations.
 
 ---
 
-# User Profile
+# User Profile  [PARTIAL]
 
 Sections
 
@@ -557,7 +581,7 @@ Activity Timeline
 
 ---
 
-# Teacher Profile
+# Teacher Profile  [TARGET — not built]
 
 Photo
 
@@ -575,7 +599,10 @@ Achievements
 
 ---
 
-# Certificates
+# Certificates  [PARTIAL]
+
+> **Current:** Certificates exist in the upstream LMS; the custom branded
+> certificate (logo, signature, QR, verification URL) is not yet built.
 
 Modern branded certificates.
 
@@ -591,7 +618,7 @@ Download PDF
 
 ---
 
-# Blog
+# Blog  [TARGET — not built]
 
 Modern cards.
 
@@ -607,7 +634,9 @@ Search.
 
 ---
 
-# Footer
+# Footer  [TARGET — not built]
+
+> **Current:** No footer component exists in the SPA.
 
 Four columns.
 
@@ -627,7 +656,7 @@ Copyright
 
 ---
 
-# Mobile Experience
+# Mobile Experience  [PARTIAL]
 
 Fully responsive.
 
@@ -645,7 +674,10 @@ Responsive lesson player.
 
 ---
 
-# Dark Mode
+# Dark Mode  [PARTIAL]
+
+> **Current:** frappe-ui ships dark-mode tokens and the theme handles
+> `[data-theme='dark']` partially; full brand dark mode is not finished.
 
 Architecture must support future dark mode.
 
@@ -655,7 +687,7 @@ Everything must use tokens.
 
 ---
 
-# Animation
+# Animation  [PARTIAL]
 
 Small animations only.
 
@@ -677,7 +709,7 @@ Avoid excessive motion.
 
 ---
 
-# Performance
+# Performance  [PARTIAL]
 
 Lazy loading.
 
@@ -691,7 +723,10 @@ Avoid unnecessary JS.
 
 ---
 
-# Component Mapping
+# Component Mapping  [TARGET — not built]
+
+> **Current:** Most components are recolored in place via tokens, not replaced with
+> bespoke equivalents.
 
 Replace these Frappe components:
 
@@ -745,7 +780,7 @@ Website pages
 
 ---
 
-# Components NOT to Rewrite
+# Components NOT to Rewrite  [IMPLEMENTED]
 
 Do NOT rebuild:
 
@@ -771,7 +806,7 @@ Only redesign the presentation layer.
 
 ---
 
-# Implementation Strategy
+# Implementation Strategy  [PARTIAL]
 
 Phase 1
 
@@ -835,7 +870,7 @@ Responsive Improvements
 
 ---
 
-# Deliverables
+# Deliverables  [TARGET — not built]
 
 The AI agent should produce:
 
@@ -856,7 +891,7 @@ The AI agent should produce:
 
 ---
 
-# Success Criteria
+# Success Criteria  [TARGET — not built]
 
 ✓ Looks like a premium SaaS platform
 

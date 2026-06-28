@@ -4,6 +4,13 @@
 
 Use these tokens as the single source of truth for the website theme.
 
+> **Reference, not live CSS.** This `:root { … }` block is the **palette / design
+> reference**. The SPA does not read these names directly — it consumes the brand
+> colors as **frappe-ui token overrides** (see "Frappe / LMS Theme Override" below).
+> The `--button-*` / `--input-*` / `--card-*` / `--radius-*` / `--space-*` / `--text-*`
+> entries here are a design reference for values to apply, **not** live CSS variables
+> the app reads.
+
 ```css
 :root {
   /* =========================

@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
-from frappe.utils import cint
+from frappe.utils import flt
 
 
 class LMSQuizSubmission(Document):
@@ -36,14 +36,14 @@ class LMSQuizSubmission(Document):
 	def validate_marks(self):
 		self.score = 0
 		for row in self.result:
-			if cint(row.marks) > cint(row.marks_out_of):
+			if flt(row.marks) > flt(row.marks_out_of):
 				frappe.throw(
 					_(
 						"Marks for question number {0} cannot be greater than the marks allotted for that question."
 					).format(row.idx)
 				)
 			else:
-				self.score += cint(row.marks)
+				self.score += flt(row.marks)
 
 	def set_percentage(self):
 		if self.score and self.score_out_of:

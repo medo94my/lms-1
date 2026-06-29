@@ -6,7 +6,9 @@ from frappe import _
 
 from lms.lms.question_types.base import QuestionType
 from lms.lms.question_types.choices import ChoicesQuestion
+from lms.lms.question_types.fill_blank import FillBlankQuestion
 from lms.lms.question_types.open_ended import OpenEndedQuestion
+from lms.lms.question_types.true_false import TrueFalseQuestion
 from lms.lms.question_types.user_input import UserInputQuestion
 
 _REGISTRY: dict[str, QuestionType] = {}
@@ -31,3 +33,5 @@ def get_question_type_names() -> list[str]:
 register(ChoicesQuestion)
 register(UserInputQuestion)
 register(OpenEndedQuestion)
+register(TrueFalseQuestion)
+register(FillBlankQuestion)

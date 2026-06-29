@@ -214,7 +214,7 @@
 							v-if="
 								quiz.data.show_answers &&
 								!showAnswers.length &&
-								questionDetails.data.type != 'Open Ended'
+								getQuestionType(questionDetails.data.type).hasLiveCheck
 							"
 							class="ms-auto"
 							@click="checkAnswer()"

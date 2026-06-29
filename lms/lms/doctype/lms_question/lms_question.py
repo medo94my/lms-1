@@ -23,12 +23,9 @@ class LMSQuestion(Document):
 
 
 def validate_correct_answers(question):
-	if question.type == "Choices":
-		validate_duplicate_options(question)
-		validate_minimum_options(question)
-		validate_correct_options(question)
-	elif question.type == "User Input":
-		validate_possible_answer(question)
+	from lms.lms.question_types import get_question_type
+
+	get_question_type(question.type).validate(question)
 
 
 def validate_duplicate_options(question):

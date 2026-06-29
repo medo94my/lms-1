@@ -323,3 +323,29 @@ class TestPlayerConfig(unittest.TestCase):
 		# Distinct 2+ items are guaranteed reordered.
 		self.assertNotEqual(cfg["items"], correct)
 		self.assertEqual(set(cfg.keys()), {"items"})
+
+
+class TestQuizFetchSanitizesAnswerKey(unittest.TestCase):
+	def test_fetch_strips_fill_blank_answer_key(self):
+		from lms.lms.utils import get_quiz_with_questions
+
+		q = frappe.new_doc("LMS Question")
+		q.question = "Capital of France is (1)"
+		q.type = "Fill in the Blank"
+		q.data = json.dumps({"blanks": [{"label": "1", "accepted": ["secretparis"]}]})
+		q.save()
+		quiz = frappe.new_doc("LMS Quiz")
+		quiz.title = "Sanitize Quiz"
+		quiz.passing_percentage = 50
+		quiz.append("questions", {"question": q.name, "marks": 1})
+		quiz.save()
+
+		result = get_quiz_with_questions(quiz.name)
+		row = result["questions_by_name"][q.name]
+		serialized = json.dumps(row["data"])
+		self.assertNotIn("secretparis", serialized)
+		self.assertNotIn("accepted", serialized)
+		self.assertIn("blanks", row["data"])
+
+		frappe.delete_doc("LMS Quiz", quiz.name, force=True)
+		frappe.delete_doc("LMS Question", q.name, force=True)

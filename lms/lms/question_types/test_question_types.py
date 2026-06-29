@@ -90,3 +90,24 @@ class TestQuestionDataField(unittest.TestCase):
 		field = meta.get_field("data")
 		self.assertIsNotNone(field)
 		self.assertEqual(field.fieldtype, "JSON")
+
+
+class TestFractionalMarksAggregation(unittest.TestCase):
+	def test_submission_sums_fractional_marks(self):
+		sub = frappe.new_doc("LMS Quiz Submission")
+		sub.quiz = "Test Quiz"
+		sub.score_out_of = 3
+		sub.passing_percentage = 50
+		sub.append("result", {"marks": 2.0, "marks_out_of": 3, "is_correct": 0})
+		sub.append("result", {"marks": 1.0, "marks_out_of": 1, "is_correct": 1})
+		sub.validate_marks()
+		self.assertEqual(sub.score, 3.0)
+
+	def test_partial_fraction_not_truncated(self):
+		sub = frappe.new_doc("LMS Quiz Submission")
+		sub.quiz = "Test Quiz"
+		sub.score_out_of = 1
+		sub.passing_percentage = 50
+		sub.append("result", {"marks": 0.5, "marks_out_of": 1, "is_correct": 0})
+		sub.validate_marks()
+		self.assertEqual(sub.score, 0.5)

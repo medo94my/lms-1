@@ -105,3 +105,24 @@ describe('True/False helpers', () => {
 		)
 	})
 })
+
+describe('Fill in the Blank helpers', () => {
+	const q = {
+		data: {
+			blanks: [
+				{ label: '1', accepted: ['a'] },
+				{ label: '2', accepted: ['b'] },
+			],
+		},
+	}
+	it('getAnswers returns one entry per blank, empty for missing', () => {
+		expect(
+			getQuestionType('Fill in the Blank').getAnswers(q, { values: ['x'] })
+		).toEqual(['x', ''])
+	})
+	it('loadAnswer restores values', () => {
+		expect(
+			getQuestionType('Fill in the Blank').loadAnswer(q, ['p', 'q']).values
+		).toEqual(['p', 'q'])
+	})
+})

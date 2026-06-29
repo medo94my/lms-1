@@ -1,6 +1,7 @@
 # Copyright (c) 2026, Frappe and contributors
 # See license.txt
 
+import json
 import unittest
 
 import frappe
@@ -140,4 +141,35 @@ class TestQuizFetchIncludesData(unittest.TestCase):
 		self.assertIn("data", row)
 
 		frappe.delete_doc("LMS Quiz", quiz.name, force=True)
+		frappe.delete_doc("LMS Question", q.name, force=True)
+
+
+class TestTrueFalsePlugin(unittest.TestCase):
+	def _q(self, correct):
+		q = frappe.new_doc("LMS Question")
+		q.question = "Sky is blue"
+		q.type = "True/False"
+		q.data = json.dumps({"correct": correct, "explanation": ""})
+		q.save()
+		return q
+
+	def test_validate_requires_boolean(self):
+		q = frappe.new_doc("LMS Question")
+		q.question = "Bad TF"
+		q.type = "True/False"
+		q.data = json.dumps({"explanation": "x"})
+		self.assertRaises(frappe.ValidationError, q.save)
+
+	def test_score_true_correct(self):
+		q = self._q(True)
+		qt = get_question_type("True/False")
+		self.assertEqual(qt.score(q.name, ["true"]), 1.0)
+		self.assertEqual(qt.score(q.name, ["false"]), 0.0)
+		frappe.delete_doc("LMS Question", q.name, force=True)
+
+	def test_live_check_returns_correctness(self):
+		q = self._q(False)
+		qt = get_question_type("True/False")
+		self.assertEqual(qt.live_check(q.name, ["false"]), 1)
+		self.assertEqual(qt.live_check(q.name, ["true"]), 0)
 		frappe.delete_doc("LMS Question", q.name, force=True)

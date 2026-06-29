@@ -98,6 +98,7 @@ const question = reactive({
 	question: '',
 	type: 'Choices',
 	marks: 1,
+	data: {},
 })
 
 const MAX_OPTIONS = 10
@@ -155,6 +156,7 @@ watch(show, () => {
 			question.question = ''
 			question.marks = 1
 			question.type = 'Choices'
+			question.data = {}
 			existingQuestion.question = ''
 			existingQuestion.marks = 1
 			chooseFromExisting.value = false

@@ -24,5 +24,5 @@ export function questionTypeNames(): string[] {
 }
 
 export function questionTypeOptions(): string[] {
-	return Object.values(REGISTRY).map((d) => d.label)
+	return Object.values(REGISTRY).map((d) => d.name)
 }

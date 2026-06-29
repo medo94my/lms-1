@@ -74,3 +74,21 @@ describe('Open Ended helpers', () => {
 		expect(def.hasLiveCheck).toBe(false)
 	})
 })
+
+import { questionTypeOptions } from '@/questionTypes'
+import { parseConfig } from '@/questionTypes/util'
+
+describe('framework touch-ups', () => {
+	it('questionTypeOptions returns names (not labels)', () => {
+		const opts = questionTypeOptions()
+		expect(opts).toContain('Choices')
+		expect(opts).toContain('User Input')
+		expect(opts).toContain('Open Ended')
+	})
+	it('parseConfig handles object and JSON string', () => {
+		expect(parseConfig({ data: { a: 1 } })).toEqual({ a: 1 })
+		expect(parseConfig({ data: '{"a":2}' })).toEqual({ a: 2 })
+		expect(parseConfig({})).toEqual({})
+		expect(parseConfig({ data: null })).toEqual({})
+	})
+})

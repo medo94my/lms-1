@@ -126,3 +126,24 @@ describe('Fill in the Blank helpers', () => {
 		).toEqual(['p', 'q'])
 	})
 })
+
+describe('Matching helpers', () => {
+	const q = {
+		data: {
+			pairs: [
+				{ left: 'A', right: '1' },
+				{ left: 'B', right: '2' },
+			],
+		},
+	}
+	it('getAnswers returns one entry per left, empty for missing', () => {
+		expect(
+			getQuestionType('Matching').getAnswers(q, { selections: ['1'] })
+		).toEqual(['1', ''])
+	})
+	it('loadAnswer restores selections', () => {
+		expect(
+			getQuestionType('Matching').loadAnswer(q, ['1', '2']).selections
+		).toEqual(['1', '2'])
+	})
+})

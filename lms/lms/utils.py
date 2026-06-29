@@ -1460,6 +1460,7 @@ def get_quiz_with_questions(quiz: str) -> dict:
 			"name",
 			"question",
 			"type",
+			"data",
 			"multiple",
 			*QUESTION_OPTION_FIELDS,
 			*QUESTION_EXPLANATION_FIELDS,

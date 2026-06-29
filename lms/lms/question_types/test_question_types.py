@@ -116,3 +116,28 @@ class TestFractionalMarksAggregation(unittest.TestCase):
 class TestLiveCheckGate(unittest.TestCase):
 	def test_open_ended_has_no_live_check(self):
 		self.assertFalse(get_question_type("Open Ended").has_live_check)
+
+
+class TestQuizFetchIncludesData(unittest.TestCase):
+	def test_get_quiz_with_questions_returns_data_field(self):
+		from lms.lms.utils import get_quiz_with_questions
+
+		q = frappe.new_doc("LMS Question")
+		q.question = "Fetch data field"
+		q.type = "Choices"
+		q.option_1 = "a"
+		q.is_correct_1 = 1
+		q.option_2 = "b"
+		q.save()
+		quiz = frappe.new_doc("LMS Quiz")
+		quiz.title = "Fetch Data Quiz"
+		quiz.passing_percentage = 50
+		quiz.append("questions", {"question": q.name, "marks": 1})
+		quiz.save()
+
+		result = get_quiz_with_questions(quiz.name)
+		row = result["questions_by_name"][q.name]
+		self.assertIn("data", row)
+
+		frappe.delete_doc("LMS Quiz", quiz.name, force=True)
+		frappe.delete_doc("LMS Question", q.name, force=True)

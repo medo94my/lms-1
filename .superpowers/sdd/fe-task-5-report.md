@@ -108,7 +108,44 @@ fields (set by `populateFields()` and mutated by the author components).
 
 **RTL layout verdict:** CLEAN — no physical directional Tailwind classes in any changed file.
 
-## vue-frontend-reviewer findings
+## vue-frontend-reviewer findings and resolution
 
-Agent still running at time of initial report; see separate notification if findings arrive.
-If no blocking issues surface, the two commits (d705236e, ed3a586c) are the final deliverable.
+**BLOCKER (fixed, committed 6abe3e1a):**
+
+- `watch(question, ...)` in ChoicesAuthor.vue and UserInputAuthor.vue was missing
+  `{ deep: true }`. `question` is a ModelRef over the host's `reactive({})` object,
+  which `questionData.onSuccess` mutates *in place* (never replaced). A shallow
+  ref-watch only fires on reference change, so it never re-fired after the saved
+  `option_N`/`possibility_N` fields loaded — editing a saved question with >2 options
+  or >1 possibility would render only the default rows and hide the rest. Added
+  `{ immediate: true, deep: true }` to both watches. This restores the exact
+  behaviour the host's old inline `Math.max` recomputation in `onSuccess` provided.
+
+**SHOULD-FIX — deferred (out of this task's file scope / not reachable today):**
+
+1. `questionTypes/index.ts:27` `questionTypeOptions()` returns raw `label` strings, so
+   the select stores `question.type = label`. Works today because all three types have
+   `name === label`. Would break the day a type's label diverges from its registry key.
+   `index.ts` is outside this task's allowed file set (Question.vue + the 3 author
+   components). **Recommend a follow-up** to return `{ value: name, label }` objects.
+
+2. `Question.vue:45` `getQuestionType(question.type)` throws for an unregistered type,
+   which would crash the modal render. Not reachable today: the select only offers
+   registry types, `question.type` defaults to `'Choices'`, and saved data is always
+   one of the three registered names. **Recommend a follow-up** guard if backend-only
+   types are ever added.
+
+**Pre-existing (not introduced by this diff — left per surgical-changes guideline):**
+
+- `chooseFromExisting` is only reset in the new-question branch of `watch(show)`, not on
+  edit-open. Same structure existed before this refactor.
+- `<style>` radio override uses `theme('colors.gray.900')` instead of a brand token.
+
+**NIT (already fixed, committed ed3a586c):** ordinal label concatenation replaced with
+`__('Option {0}', [n])` / `__('Possibility {0}', [n])`.
+
+## Final commits
+
+- `d705236e` refactor(quiz-fe): host per-type author components in Question modal
+- `ed3a586c` fix(quiz-fe): i18n placeholders + aria-labels in author components
+- `6abe3e1a` fix(quiz-fe): deep-watch question in author components so edit restores rows

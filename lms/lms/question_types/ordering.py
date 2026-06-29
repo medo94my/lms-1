@@ -1,6 +1,8 @@
 # Copyright (c) 2026, Frappe and contributors
 # For license information, please see license.txt
 
+import random
+
 import frappe
 from frappe import _
 
@@ -38,3 +40,14 @@ class OrderingQuestion(QuestionType):
 
 	def live_check(self, question_name: str, answer: list) -> list:
 		return self._per_position(question_name, answer)
+
+	def player_config(self, question) -> dict:
+		items = [str(i) for i in (frappe.parse_json(question.get("data") or "{}").get("items") or [])]
+		shuffled = items[:]
+		# Avoid presenting the already-correct order for 2+ items. Bounded so a
+		# list with duplicate values (which can never differ) cannot loop forever.
+		for _attempt in range(10):
+			random.SystemRandom().shuffle(shuffled)
+			if len(items) < 2 or shuffled != items:
+				break
+		return {"items": shuffled}

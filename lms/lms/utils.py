@@ -1447,6 +1447,7 @@ def get_quiz_with_questions(quiz: str) -> dict:
 		QUESTION_EXPLANATION_FIELDS,
 		QUESTION_OPTION_FIELDS,
 	)
+	from lms.lms.question_types import get_question_type
 
 	if not has_lms_role():
 		frappe.throw(_("You are not authorized to view this quiz."))
@@ -1471,6 +1472,9 @@ def get_quiz_with_questions(quiz: str) -> dict:
 			fields=fields,
 			ignore_permissions=True,
 		)
+		for row in rows:
+			# Replace the raw answer key with the type's sanitized player config.
+			row["data"] = get_question_type(row["type"]).player_config(row)
 		questions_by_name = {row["name"]: row for row in rows}
 
 	return {"quiz": quiz_doc, "questions_by_name": questions_by_name}

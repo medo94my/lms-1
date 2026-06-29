@@ -45,3 +45,7 @@ class FillBlankQuestion(QuestionType):
 
 	def live_check(self, question_name: str, answer: list) -> list:
 		return self._per_blank(question_name, answer)
+
+	def player_config(self, question) -> dict:
+		blanks = frappe.parse_json(question.get("data") or "{}").get("blanks") or []
+		return {"blanks": [{"label": b.get("label", "")} for b in blanks]}

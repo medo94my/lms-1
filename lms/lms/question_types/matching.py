@@ -1,6 +1,8 @@
 # Copyright (c) 2026, Frappe and contributors
 # For license information, please see license.txt
 
+import random
+
 import frappe
 from frappe import _
 
@@ -41,3 +43,10 @@ class MatchingQuestion(QuestionType):
 
 	def live_check(self, question_name: str, answer: list) -> list:
 		return self._per_pair(question_name, answer)
+
+	def player_config(self, question) -> dict:
+		pairs = frappe.parse_json(question.get("data") or "{}").get("pairs") or []
+		lefts = [str(p.get("left") or "") for p in pairs]
+		rights = [str(p.get("right") or "") for p in pairs]
+		random.SystemRandom().shuffle(rights)
+		return {"lefts": lefts, "rights": rights}

@@ -110,12 +110,10 @@ describe('True/False helpers', () => {
 })
 
 describe('Fill in the Blank helpers', () => {
+	// Player receives the sanitized shape: labels only, no accepted answers.
 	const q = {
 		data: {
-			blanks: [
-				{ label: '1', accepted: ['a'] },
-				{ label: '2', accepted: ['b'] },
-			],
+			blanks: [{ label: '1' }, { label: '2' }],
 		},
 	}
 	it('getAnswers returns one entry per blank, empty for missing', () => {
@@ -131,12 +129,11 @@ describe('Fill in the Blank helpers', () => {
 })
 
 describe('Matching helpers', () => {
+	// Player receives the sanitized shape: lefts + a shuffled rights pool, no pairs.
 	const q = {
 		data: {
-			pairs: [
-				{ left: 'A', right: '1' },
-				{ left: 'B', right: '2' },
-			],
+			lefts: ['A', 'B'],
+			rights: ['2', '1'],
 		},
 	}
 	it('getAnswers returns one entry per left, empty for missing', () => {
@@ -152,11 +149,19 @@ describe('Matching helpers', () => {
 })
 
 describe('Ordering helpers', () => {
+	// Player receives the sanitized shape: items pre-shuffled by the server.
 	const q = { data: { items: ['a', 'b', 'c'] } }
 	it('getAnswers returns the current order, fixed length', () => {
 		expect(
 			getQuestionType('Ordering').getAnswers(q, { order: ['b', 'a'] })
 		).toEqual(['b', 'a', ''])
+	})
+	it('getAnswers length follows the server items, not the learner order', () => {
+		expect(getQuestionType('Ordering').getAnswers(q, { order: [] })).toEqual([
+			'',
+			'',
+			'',
+		])
 	})
 	it('loadAnswer restores order', () => {
 		expect(

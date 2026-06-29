@@ -56,7 +56,7 @@
 import { computed, watch } from 'vue'
 import { Button } from 'frappe-ui'
 import draggable from 'vuedraggable'
-import { parseConfig, shuffle } from '@/questionTypes/util'
+import { parseConfig } from '@/questionTypes/util'
 import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
 
 const props = defineProps({
@@ -77,18 +77,13 @@ const order = computed({
 	},
 })
 
-// Once items are available, shuffle them once if there is no restored order.
-// Use a watch with immediate:true so async question props are also handled.
-// Re-shuffle until result differs from correct order (guaranteed distinct for
-// 2+ items after at most a few attempts).
+// Items arrive pre-shuffled from the server (player_config). Seed the learner's
+// working order from them, unless a saved answer was already restored.
 watch(
 	items,
 	(newItems) => {
 		if (!newItems.length || order.value.length) return
-		let next = shuffle(newItems)
-		while (newItems.length > 1 && next.every((v, i) => v === newItems[i]))
-			next = shuffle(newItems)
-		order.value = next
+		order.value = [...newItems]
 	},
 	{ immediate: true }
 )

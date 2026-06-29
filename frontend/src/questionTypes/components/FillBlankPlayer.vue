@@ -20,13 +20,6 @@
 					class="lucide-x-circle w-4 h-4 text-ink-red-6"
 				/>
 			</div>
-			<div
-				v-if="showAnswers.length && perBlank[i] === 0"
-				class="text-xs text-ink-gray-6"
-			>
-				{{ __('Accepted:') }}
-				<bdi>{{ (blank.accepted || []).join('، ') }}</bdi>
-			</div>
 		</div>
 	</div>
 </template>

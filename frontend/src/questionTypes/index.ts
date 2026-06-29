@@ -4,6 +4,8 @@ import userInput from './userInput'
 import openEnded from './openEnded'
 import trueFalse from './trueFalse'
 import fillBlank from './fillBlank'
+import matching from './matching'
+import ordering from './ordering'
 
 const REGISTRY: Record<string, QuestionTypeDef> = {}
 
@@ -16,6 +18,8 @@ register(userInput)
 register(openEnded)
 register(trueFalse)
 register(fillBlank)
+register(matching)
+register(ordering)
 
 export function getQuestionType(name: string): QuestionTypeDef {
 	const def = REGISTRY[name]

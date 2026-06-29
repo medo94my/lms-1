@@ -7,7 +7,9 @@ from frappe import _
 from lms.lms.question_types.base import QuestionType
 from lms.lms.question_types.choices import ChoicesQuestion
 from lms.lms.question_types.fill_blank import FillBlankQuestion
+from lms.lms.question_types.matching import MatchingQuestion
 from lms.lms.question_types.open_ended import OpenEndedQuestion
+from lms.lms.question_types.ordering import OrderingQuestion
 from lms.lms.question_types.true_false import TrueFalseQuestion
 from lms.lms.question_types.user_input import UserInputQuestion
 
@@ -35,3 +37,5 @@ register(UserInputQuestion)
 register(OpenEndedQuestion)
 register(TrueFalseQuestion)
 register(FillBlankQuestion)
+register(MatchingQuestion)
+register(OrderingQuestion)

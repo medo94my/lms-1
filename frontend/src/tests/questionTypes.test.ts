@@ -14,6 +14,9 @@ vi.mock('frappe-ui', () => ({
 	Badge: { template: '<span><slot /></span>' },
 	TextEditor: { template: '<div />' },
 }))
+vi.mock('vuedraggable', () => ({
+	default: { template: '<div><slot /></div>' },
+}))
 
 import {
 	getQuestionType,
@@ -124,5 +127,40 @@ describe('Fill in the Blank helpers', () => {
 		expect(
 			getQuestionType('Fill in the Blank').loadAnswer(q, ['p', 'q']).values
 		).toEqual(['p', 'q'])
+	})
+})
+
+describe('Matching helpers', () => {
+	const q = {
+		data: {
+			pairs: [
+				{ left: 'A', right: '1' },
+				{ left: 'B', right: '2' },
+			],
+		},
+	}
+	it('getAnswers returns one entry per left, empty for missing', () => {
+		expect(
+			getQuestionType('Matching').getAnswers(q, { selections: ['1'] })
+		).toEqual(['1', ''])
+	})
+	it('loadAnswer restores selections', () => {
+		expect(
+			getQuestionType('Matching').loadAnswer(q, ['1', '2']).selections
+		).toEqual(['1', '2'])
+	})
+})
+
+describe('Ordering helpers', () => {
+	const q = { data: { items: ['a', 'b', 'c'] } }
+	it('getAnswers returns the current order, fixed length', () => {
+		expect(
+			getQuestionType('Ordering').getAnswers(q, { order: ['b', 'a'] })
+		).toEqual(['b', 'a', ''])
+	})
+	it('loadAnswer restores order', () => {
+		expect(
+			getQuestionType('Ordering').loadAnswer(q, ['c', 'b', 'a']).order
+		).toEqual(['c', 'b', 'a'])
 	})
 })

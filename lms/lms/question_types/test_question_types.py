@@ -212,3 +212,68 @@ class TestFillBlankPlugin(unittest.TestCase):
 		self.assertEqual(qt.live_check(q.name, ["H", "oxygen"]), [1, 1])
 		self.assertEqual(qt.live_check(q.name, ["x", "oxygen"]), [0, 1])
 		frappe.delete_doc("LMS Question", q.name, force=True)
+
+
+class TestMatchingPlugin(unittest.TestCase):
+	def _q(self):
+		q = frappe.new_doc("LMS Question")
+		q.question = "Match capitals"
+		q.type = "Matching"
+		q.data = json.dumps(
+			{"pairs": [{"left": "France", "right": "Paris"}, {"left": "Japan", "right": "Tokyo"}]}
+		)
+		q.save()
+		return q
+
+	def test_validate_requires_two_complete_pairs(self):
+		q = frappe.new_doc("LMS Question")
+		q.question = "Bad matching"
+		q.type = "Matching"
+		q.data = json.dumps({"pairs": [{"left": "France", "right": ""}]})
+		self.assertRaises(frappe.ValidationError, q.save)
+
+	def test_score_full_partial_zero(self):
+		q = self._q()
+		qt = get_question_type("Matching")
+		self.assertEqual(qt.score(q.name, ["Paris", "Tokyo"]), 1.0)
+		self.assertEqual(qt.score(q.name, ["Paris", "Berlin"]), 0.5)
+		self.assertEqual(qt.score(q.name, ["", ""]), 0.0)
+		frappe.delete_doc("LMS Question", q.name, force=True)
+
+	def test_live_check_per_pair(self):
+		q = self._q()
+		qt = get_question_type("Matching")
+		self.assertEqual(qt.live_check(q.name, ["Paris", "Berlin"]), [1, 0])
+		frappe.delete_doc("LMS Question", q.name, force=True)
+
+
+class TestOrderingPlugin(unittest.TestCase):
+	def _q(self):
+		q = frappe.new_doc("LMS Question")
+		q.question = "Order the planets by distance"
+		q.type = "Ordering"
+		q.data = json.dumps({"items": ["Mercury", "Venus", "Earth"]})
+		q.save()
+		return q
+
+	def test_validate_requires_two_items(self):
+		q = frappe.new_doc("LMS Question")
+		q.question = "Bad ordering"
+		q.type = "Ordering"
+		q.data = json.dumps({"items": ["only one"]})
+		self.assertRaises(frappe.ValidationError, q.save)
+
+	def test_score_absolute_position(self):
+		q = self._q()
+		qt = get_question_type("Ordering")
+		self.assertEqual(qt.score(q.name, ["Mercury", "Venus", "Earth"]), 1.0)
+		# first correct, last two swapped -> 1 of 3
+		self.assertAlmostEqual(qt.score(q.name, ["Mercury", "Earth", "Venus"]), 1 / 3)
+		self.assertEqual(qt.score(q.name, ["Earth", "Venus", "Mercury"]), 1 / 3)
+		frappe.delete_doc("LMS Question", q.name, force=True)
+
+	def test_live_check_per_position(self):
+		q = self._q()
+		qt = get_question_type("Ordering")
+		self.assertEqual(qt.live_check(q.name, ["Mercury", "Earth", "Venus"]), [1, 0, 0])
+		frappe.delete_doc("LMS Question", q.name, force=True)

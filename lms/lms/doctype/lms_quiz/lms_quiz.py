@@ -10,7 +10,7 @@ import frappe
 from frappe import _, safe_decode
 from frappe.core.doctype.file.utils import get_random_filename
 from frappe.model.document import Document
-from frappe.utils import cint, comma_and, escape_html
+from frappe.utils import cint, comma_and, escape_html, flt
 from frappe.utils.file_manager import safe_b64decode
 from frappe.utils.html_utils import sanitize_html
 from fuzzywuzzy import fuzz
@@ -171,13 +171,13 @@ def process_results(results: list, quiz_details: dict):
 
 		question_type = get_question_type(question_details.type)
 		if question_type.is_auto_graded:
-			correct = question_type.score(question_details.question, result["answer"])
+			fraction = flt(question_type.score(question_details.question, result["answer"]))
 			result["answer"] = ", ".join(result["answer"])
-			if correct:
-				result["marks"] = question_details.marks
+			if fraction > 0:
+				result["marks"] = fraction * flt(question_details.marks)
 			else:
 				result["marks"] = -quiz_details.marks_to_cut if quiz_details.enable_negative_marking else 0
-			result["is_correct"] = 1 if correct else 0
+			result["is_correct"] = 1 if fraction == 1 else 0
 
 		else:
 			is_open_ended = True

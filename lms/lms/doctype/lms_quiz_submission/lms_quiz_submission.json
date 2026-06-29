@@ -93,7 +93,7 @@
   },
   {
    "fieldname": "percentage",
-   "fieldtype": "Float",
+   "fieldtype": "Int",
    "label": "Percentage",
    "non_negative": 1,
    "reqd": 1

@@ -1,4 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+
+// Importing @/questionTypes pulls in the author components, which import
+// frappe-ui — and frappe-ui's internal extensionless ESM imports fail under
+// Node's strict resolver in Vitest. Stub the few named exports the transitive
+// graph touches (FormControl/Button from the author components, Switch from
+// BooleanSwitch). The test only calls registry helper fns, never mounts, so
+// minimal template stubs suffice. Scoped to THIS file so no other spec is
+// affected.
+vi.mock('frappe-ui', () => ({
+	FormControl: { template: '<input />' },
+	Button: { template: '<button><slot /></button>' },
+	Switch: { template: '<input type="checkbox" />' },
+}))
+
 import { getQuestionType, questionTypeNames } from '@/questionTypes'
 
 describe('question type registry', () => {

@@ -47,19 +47,23 @@ const question = defineModel('question')
 const visiblePossibilityCount = ref(1)
 
 // `deep` is required: `question` is a ModelRef over the host's reactive object,
-// which is mutated in place (never replaced) when questionData.onSuccess loads
-// the saved possibility_N fields. A shallow watch would not re-fire on those
-// mutations, so the grid would stay at 1 row and hide the saved possibilities.
+// mutated in place (never replaced) when questionData.onSuccess loads the saved
+// possibility_N fields after this component has already mounted with empty
+// defaults. The recompute is grow-only: it raises the count to reveal saved
+// possibilities but never lowers it, so a just-added empty row is not snapped
+// away by a keystroke elsewhere. removePossibility decrements explicitly.
 watch(
 	question,
 	(q) => {
 		if (!q) return
-		visiblePossibilityCount.value = Math.max(
+		const populated = Math.max(
 			1,
 			...Array.from({ length: MAX_OPTIONS }, (_, i) =>
 				q[`possibility_${i + 1}`] ? i + 1 : 0,
 			),
 		)
+		if (populated > visiblePossibilityCount.value)
+			visiblePossibilityCount.value = populated
 	},
 	{ immediate: true, deep: true },
 )

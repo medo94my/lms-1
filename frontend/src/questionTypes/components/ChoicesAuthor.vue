@@ -55,20 +55,24 @@ const question = defineModel('question')
 const visibleOptionCount = ref(2)
 
 // Restore the visible count when editing an existing question. `deep` is
-// required: `question` is a ModelRef over the host's reactive object, which is
-// mutated in place (never replaced) when questionData.onSuccess loads the saved
-// option_N fields. A shallow watch would not re-fire on those mutations, so the
-// grid would stay at 2 rows and hide the saved options.
+// required: `question` is a ModelRef over the host's reactive object, mutated in
+// place (never replaced) when questionData.onSuccess loads the saved option_N
+// fields after this component has already mounted with empty defaults.
+// The recompute is grow-only: it raises the count to reveal saved options but
+// never lowers it, so a just-added empty row (e.g. option_3 still null) is not
+// snapped away by a keystroke elsewhere. removeOption decrements explicitly.
 watch(
 	question,
 	(q) => {
 		if (!q) return
-		visibleOptionCount.value = Math.max(
+		const populated = Math.max(
 			2,
 			...Array.from({ length: MAX_OPTIONS }, (_, i) =>
 				q[`option_${i + 1}`] ? i + 1 : 0,
 			),
 		)
+		if (populated > visibleOptionCount.value)
+			visibleOptionCount.value = populated
 	},
 	{ immediate: true, deep: true },
 )

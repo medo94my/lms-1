@@ -47,7 +47,7 @@ class OrderingQuestion(QuestionType):
 		# Avoid presenting the already-correct order for 2+ items. Bounded so a
 		# list with duplicate values (which can never differ) cannot loop forever.
 		for _attempt in range(10):
-			random.shuffle(shuffled)
+			random.SystemRandom().shuffle(shuffled)
 			if len(items) < 2 or shuffled != items:
 				break
 		return {"items": shuffled}

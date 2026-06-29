@@ -48,5 +48,5 @@ class MatchingQuestion(QuestionType):
 		pairs = frappe.parse_json(question.get("data") or "{}").get("pairs") or []
 		lefts = [str(p.get("left") or "") for p in pairs]
 		rights = [str(p.get("right") or "") for p in pairs]
-		random.shuffle(rights)
+		random.SystemRandom().shuffle(rights)
 		return {"lefts": lefts, "rights": rights}

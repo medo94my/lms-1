@@ -11,6 +11,7 @@
  "field_order": [
   "question",
   "type",
+  "data",
   "multiple",
   "section_break_ytxi",
   "option_1",
@@ -88,6 +89,12 @@
    "in_list_view": 1,
    "label": "Type",
    "options": "Choices\nUser Input\nOpen Ended"
+  },
+  {
+   "fieldname": "data",
+   "fieldtype": "JSON",
+   "label": "Type Data",
+   "description": "Answer schema for question types that do not use the option_1..10 columns."
   },
   {
    "default": "0",

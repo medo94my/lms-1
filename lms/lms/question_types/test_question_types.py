@@ -82,3 +82,11 @@ class TestOpenEndedPlugin(unittest.TestCase):
 		q.question = "Explain"
 		q.type = "Open Ended"
 		qt.validate(q)  # no exception
+
+
+class TestQuestionDataField(unittest.TestCase):
+	def test_data_field_exists(self):
+		meta = frappe.get_meta("LMS Question")
+		field = meta.get_field("data")
+		self.assertIsNotNone(field)
+		self.assertEqual(field.fieldtype, "JSON")

@@ -54,7 +54,11 @@ const MAX_OPTIONS = 10
 const question = defineModel('question')
 const visibleOptionCount = ref(2)
 
-// Restore the visible count when editing an existing question.
+// Restore the visible count when editing an existing question. `deep` is
+// required: `question` is a ModelRef over the host's reactive object, which is
+// mutated in place (never replaced) when questionData.onSuccess loads the saved
+// option_N fields. A shallow watch would not re-fire on those mutations, so the
+// grid would stay at 2 rows and hide the saved options.
 watch(
 	question,
 	(q) => {
@@ -66,7 +70,7 @@ watch(
 			),
 		)
 	},
-	{ immediate: true },
+	{ immediate: true, deep: true },
 )
 
 const addOption = () => {

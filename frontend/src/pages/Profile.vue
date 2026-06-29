@@ -234,7 +234,7 @@ watch(
 	() => props.username,
 	() => {
 		profile.reload()
-	},
+	}
 )
 
 const editProfile = () => {

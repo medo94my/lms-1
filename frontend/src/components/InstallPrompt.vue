@@ -7,7 +7,7 @@
 			<p>
 				{{
 					__(
-						'Get the app on your device for easy access & a better experience!',
+						'Get the app on your device for easy access & a better experience!'
 					)
 				}}
 			</p>
@@ -43,7 +43,7 @@
 						<span class="leading-5">
 							{{
 								__(
-									'Get the app on your iPhone for easy access & a better experience',
+									'Get the app on your iPhone for easy access & a better experience'
 								)
 							}}
 						</span>

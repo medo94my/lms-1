@@ -110,7 +110,7 @@ const props = withDefaults(
 		isCollapsed: false,
 		showControls: false,
 		activeTab: '',
-	},
+	}
 )
 
 function handleClick(): void {
@@ -138,7 +138,7 @@ function handleClick(): void {
 const isActive = computed<boolean>(() => {
 	return Boolean(
 		props.link?.activeFor?.includes(router.currentRoute.value.name as string) ||
-		(props.activeTab && props.link?.label?.includes(props.activeTab)),
+			(props.activeTab && props.link?.label?.includes(props.activeTab))
 	)
 })
 

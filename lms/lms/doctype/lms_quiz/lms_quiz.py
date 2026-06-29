@@ -21,6 +21,7 @@ from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_OPTION_FIELDS,
 	QUESTION_POSSIBILITY_FIELDS,
 )
+from lms.lms.question_types import get_question_type
 from lms.lms.utils import (
 	generate_slug,
 )
@@ -168,11 +169,9 @@ def process_results(results: list, quiz_details: dict):
 		result["question"] = question_details.question_detail
 		result["marks_out_of"] = question_details.marks
 
-		if question_details.type != "Open Ended":
-			if question_details.type == "User Input":
-				correct = bool(check_input_answers(question_details.question, result["answer"][0]))
-			else:
-				correct = verify_answer(question_details.question, result["answer"])
+		question_type = get_question_type(question_details.type)
+		if question_type.is_auto_graded:
+			correct = question_type.score(question_details.question, result["answer"])
 			result["answer"] = ", ".join(result["answer"])
 			if correct:
 				result["marks"] = question_details.marks
@@ -312,10 +311,7 @@ def check_answer(quiz: str, question: str, question_type: str, answers: str):
 		)
 
 	answers = answers and json.loads(answers)
-	if question_type == "Choices":
-		return check_choice_answers(question, answers)
-	else:
-		return check_input_answers(question, answers[0])
+	return get_question_type(question_type).live_check(question, answers)
 
 
 def get_question_details(question: str):

@@ -216,7 +216,7 @@ const addQuestion = () => {
 				onError(err) {
 					toast.error(err.messages?.[0] || err)
 				},
-			},
+			}
 		)
 	}
 }
@@ -240,7 +240,7 @@ const addQuestionRow = (question) => {
 				toast.error(err.messages?.[0] || err)
 				show.value = false
 			},
-		},
+		}
 	)
 }
 
@@ -285,13 +285,13 @@ const updateQuestion = () => {
 							toast.success(__('Question updated successfully'))
 							quiz.value.reload()
 						},
-					},
+					}
 				)
 			},
 			onError(err) {
 				toast.error(err.messages?.[0] || err)
 			},
-		},
+		}
 	)
 }
 </script>

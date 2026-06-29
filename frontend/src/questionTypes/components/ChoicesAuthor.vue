@@ -68,13 +68,13 @@ watch(
 		const populated = Math.max(
 			2,
 			...Array.from({ length: MAX_OPTIONS }, (_, i) =>
-				q[`option_${i + 1}`] ? i + 1 : 0,
-			),
+				q[`option_${i + 1}`] ? i + 1 : 0
+			)
 		)
 		if (populated > visibleOptionCount.value)
 			visibleOptionCount.value = populated
 	},
-	{ immediate: true, deep: true },
+	{ immediate: true, deep: true }
 )
 
 const addOption = () => {

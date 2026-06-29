@@ -167,7 +167,7 @@ const props = withDefaults(
 		selectedLessonNumber: '',
 		completedLesson: null,
 		hideHeader: false,
-	},
+	}
 )
 
 defineExpose({ openChapterModal })
@@ -190,7 +190,7 @@ watch(
 	(name) => {
 		if (name) outline.reload()
 	},
-	{ immediate: true },
+	{ immediate: true }
 )
 
 watch(
@@ -204,7 +204,7 @@ watch(
 				break
 			}
 		}
-	},
+	}
 )
 
 const deleteLesson = createResource({
@@ -273,7 +273,7 @@ const renameChapterResource = createResource({
 	},
 	onError(err: { messages?: string[] } | string) {
 		outline.reload()
-		toast.error(typeof err === 'string' ? err : (err.messages?.[0] ?? 'Error'))
+		toast.error(typeof err === 'string' ? err : err.messages?.[0] ?? 'Error')
 	},
 })
 
@@ -282,7 +282,7 @@ function renameChapter(payload: { chapter: OutlineChapter; title: string }) {
 }
 
 const errorMessage = (err: { messages?: string[] } | string): string =>
-	typeof err === 'string' ? err : (err.messages?.[0] ?? 'Error')
+	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
 
 // Inserts the Course Lesson and its chapter reference in one request, so a
 // failure on either rolls back atomically — no orphaned lesson. Returns the
@@ -317,7 +317,7 @@ function createLessonInline(payload: {
 				creatingLessonChapter.value = ''
 				toast.error(errorMessage(err))
 			},
-		},
+		}
 	)
 }
 
@@ -341,7 +341,7 @@ function trashLesson(lessonName: string, chapterName: string) {
 	$dialog({
 		title: __('Delete this lesson?'),
 		message: __(
-			'Deleting this lesson will permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?',
+			'Deleting this lesson will permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?'
 		),
 		actions: [
 			{
@@ -354,7 +354,7 @@ function trashLesson(lessonName: string, chapterName: string) {
 					// concurrent deletes. Runs alongside the resource-level reload.
 					deleteLesson.submit(
 						{ lesson: lessonName, chapter: chapterName },
-						{ onSuccess: () => emit('lesson-deleted', { lesson: lessonName }) },
+						{ onSuccess: () => emit('lesson-deleted', { lesson: lessonName }) }
 					)
 					close()
 				},
@@ -367,7 +367,7 @@ function trashChapter(chapterName: string) {
 	$dialog({
 		title: __('Delete this chapter?'),
 		message: __(
-			'Deleting this chapter will also delete all its lessons and permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?',
+			'Deleting this chapter will also delete all its lessons and permanently remove it from the course. This action cannot be undone. Are you sure you want to continue?'
 		),
 		actions: [
 			{
@@ -380,7 +380,7 @@ function trashChapter(chapterName: string) {
 						{
 							onSuccess: () =>
 								emit('chapter-deleted', { chapter: chapterName }),
-						},
+						}
 					)
 					close()
 				},

@@ -48,14 +48,14 @@ const PROXY = {
 		['/api', '/method', '/app', '/login', '/recorder', '/scorm'].map((p) => [
 			p,
 			{ target: BACKEND, changeOrigin: false, ...forceSiteHost },
-		]),
+		])
 	),
 	// Static routes -> nginx, which serves these off disk (gunicorn 404s them).
 	...Object.fromEntries(
 		['/assets', '/files', '/private'].map((p) => [
 			p,
 			{ target: STATIC, changeOrigin: false, ...forceSiteHost },
-		]),
+		])
 	),
 	'/socket.io': {
 		target: SOCKETIO,

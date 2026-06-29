@@ -67,7 +67,7 @@ const props = defineProps({
 })
 const state = defineModel('state')
 const selected = computed(
-	() => state.value?.selectedOptions || Array(MAX_OPTIONS).fill(0),
+	() => state.value?.selectedOptions || Array(MAX_OPTIONS).fill(0)
 )
 
 const markAnswer = (index) => {

@@ -15,7 +15,12 @@ vi.mock('frappe-ui', () => ({
 	TextEditor: { template: '<div />' },
 }))
 
-import { getQuestionType, questionTypeNames } from '@/questionTypes'
+import {
+	getQuestionType,
+	questionTypeNames,
+	questionTypeOptions,
+} from '@/questionTypes'
+import { parseConfig } from '@/questionTypes/util'
 
 describe('question type registry', () => {
 	it('registers the three existing types', () => {
@@ -30,8 +35,6 @@ describe('question type registry', () => {
 	})
 })
 
-import { getQuestionType as gt } from '@/questionTypes'
-
 describe('Choices helpers', () => {
 	const question = {
 		type: 'Choices',
@@ -41,7 +44,7 @@ describe('Choices helpers', () => {
 	}
 
 	it('getAnswers returns the selected option labels', () => {
-		const def = gt('Choices')
+		const def = getQuestionType('Choices')
 		const answers = def.getAnswers(question, {
 			selectedOptions: [1, 0, 1, ...Array(7).fill(0)],
 		})
@@ -49,7 +52,7 @@ describe('Choices helpers', () => {
 	})
 
 	it('loadAnswer marks the saved options as selected', () => {
-		const def = gt('Choices')
+		const def = getQuestionType('Choices')
 		const state = def.loadAnswer(question, ['b'])
 		expect(state.selectedOptions[1]).toBe(1)
 		expect(state.selectedOptions[0]).toBe(0)
@@ -58,25 +61,22 @@ describe('Choices helpers', () => {
 
 describe('User Input helpers', () => {
 	it('getAnswers wraps the text answer in an array', () => {
-		const def = gt('User Input')
+		const def = getQuestionType('User Input')
 		expect(def.getAnswers({}, { possibleAnswer: 'hello' })).toEqual(['hello'])
 	})
 	it('loadAnswer restores the first saved answer', () => {
-		const def = gt('User Input')
+		const def = getQuestionType('User Input')
 		expect(def.loadAnswer({}, ['hi']).possibleAnswer).toBe('hi')
 	})
 })
 
 describe('Open Ended helpers', () => {
 	it('is not auto-graded and has no live check', () => {
-		const def = gt('Open Ended')
+		const def = getQuestionType('Open Ended')
 		expect(def.autoGraded).toBe(false)
 		expect(def.hasLiveCheck).toBe(false)
 	})
 })
-
-import { questionTypeOptions } from '@/questionTypes'
-import { parseConfig } from '@/questionTypes/util'
 
 describe('framework touch-ups', () => {
 	it('questionTypeOptions returns names (not labels)', () => {
@@ -90,5 +90,18 @@ describe('framework touch-ups', () => {
 		expect(parseConfig({ data: '{"a":2}' })).toEqual({ a: 2 })
 		expect(parseConfig({})).toEqual({})
 		expect(parseConfig({ data: null })).toEqual({})
+	})
+})
+
+describe('True/False helpers', () => {
+	it('getAnswers wraps the choice', () => {
+		expect(
+			getQuestionType('True/False').getAnswers({}, { choice: 'true' })
+		).toEqual(['true'])
+	})
+	it('loadAnswer restores the choice', () => {
+		expect(getQuestionType('True/False').loadAnswer({}, ['false']).choice).toBe(
+			'false'
+		)
 	})
 })

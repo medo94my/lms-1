@@ -2,6 +2,7 @@ import type { QuestionTypeDef } from './types'
 import choices from './choices'
 import userInput from './userInput'
 import openEnded from './openEnded'
+import trueFalse from './trueFalse'
 
 const REGISTRY: Record<string, QuestionTypeDef> = {}
 
@@ -12,6 +13,7 @@ function register(def: QuestionTypeDef) {
 register(choices)
 register(userInput)
 register(openEnded)
+register(trueFalse)
 
 export function getQuestionType(name: string): QuestionTypeDef {
 	const def = REGISTRY[name]

@@ -88,7 +88,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Type",
-   "options": "Choices\nUser Input\nOpen Ended\nTrue/False"
+   "options": "Choices\nUser Input\nOpen Ended\nTrue/False\nFill in the Blank"
   },
   {
    "fieldname": "data",

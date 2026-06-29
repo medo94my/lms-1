@@ -173,3 +173,42 @@ class TestTrueFalsePlugin(unittest.TestCase):
 		self.assertEqual(qt.live_check(q.name, ["false"]), 1)
 		self.assertEqual(qt.live_check(q.name, ["true"]), 0)
 		frappe.delete_doc("LMS Question", q.name, force=True)
+
+
+class TestFillBlankPlugin(unittest.TestCase):
+	def _q(self):
+		q = frappe.new_doc("LMS Question")
+		q.question = "Water is (1) and (2)"
+		q.type = "Fill in the Blank"
+		q.data = json.dumps(
+			{
+				"blanks": [
+					{"label": "1", "accepted": ["hydrogen", "H"]},
+					{"label": "2", "accepted": ["oxygen"]},
+				]
+			}
+		)
+		q.save()
+		return q
+
+	def test_validate_requires_a_blank_with_answer(self):
+		q = frappe.new_doc("LMS Question")
+		q.question = "Empty blanks"
+		q.type = "Fill in the Blank"
+		q.data = json.dumps({"blanks": [{"label": "1", "accepted": []}]})
+		self.assertRaises(frappe.ValidationError, q.save)
+
+	def test_score_full_partial_zero(self):
+		q = self._q()
+		qt = get_question_type("Fill in the Blank")
+		self.assertEqual(qt.score(q.name, ["hydrogen", "oxygen"]), 1.0)
+		self.assertEqual(qt.score(q.name, ["  Hydrogen ", "wrong"]), 0.5)
+		self.assertEqual(qt.score(q.name, ["no", "no"]), 0.0)
+		frappe.delete_doc("LMS Question", q.name, force=True)
+
+	def test_live_check_per_blank(self):
+		q = self._q()
+		qt = get_question_type("Fill in the Blank")
+		self.assertEqual(qt.live_check(q.name, ["H", "oxygen"]), [1, 1])
+		self.assertEqual(qt.live_check(q.name, ["x", "oxygen"]), [0, 1])
+		frappe.delete_doc("LMS Question", q.name, force=True)

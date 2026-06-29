@@ -11,6 +11,8 @@ vi.mock('frappe-ui', () => ({
 	FormControl: { template: '<input />' },
 	Button: { template: '<button><slot /></button>' },
 	Switch: { template: '<input type="checkbox" />' },
+	Badge: { template: '<span><slot /></span>' },
+	TextEditor: { template: '<div />' },
 }))
 
 import { getQuestionType, questionTypeNames } from '@/questionTypes'

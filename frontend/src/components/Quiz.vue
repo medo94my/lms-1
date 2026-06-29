@@ -152,99 +152,13 @@
 						class="text-ink-gray-9 font-semibold mt-2 leading-5"
 						v-html="sanitizeRichHTML(questionDetails.data.question)"
 					></div>
-					<div
-						v-if="questionDetails.data.type == 'Choices'"
-						v-for="index in MAX_OPTIONS"
-					>
-						<label
-							v-if="questionDetails.data[`option_${index}`]"
-							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-primary-600"
-						>
-							<input
-								v-if="!showAnswers.length && !questionDetails.data.multiple"
-								type="radio"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 text-ink-gray-9 focus:ring-outline-elevation-2"
-								@change="markAnswer(index)"
-								:checked="selectedOptions[index - 1]"
-							/>
-
-							<input
-								v-else-if="!showAnswers.length && questionDetails.data.multiple"
-								type="checkbox"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 text-ink-gray-9 rounded-sm focus:ring-outline-elevation-2"
-								@change="markAnswer(index)"
-								:checked="selectedOptions[index - 1]"
-							/>
-							<div
-								v-else-if="quiz.data.show_answers"
-								v-for="(answer, idx) in showAnswers"
-							>
-								<div v-if="index - 1 == idx">
-									<span
-										v-if="answer == 1"
-										class="lucide-check-circle w-4 h-4 text-ink-green-5"
-									/>
-									<span
-										v-else-if="answer == 2"
-										class="lucide-minus-circle w-4 h-4 text-ink-green-5"
-									/>
-									<span
-										v-else-if="answer == 0"
-										class="lucide-x-circle w-4 h-4 text-ink-red-6"
-									/>
-									<span v-else class="lucide-minus-circle w-4 h-4" />
-								</div>
-							</div>
-							<span
-								class="ms-2 text-ink-gray-9"
-								v-html="
-									sanitizeRichHTML(questionDetails.data[`option_${index}`])
-								"
-							>
-							</span>
-						</label>
-						<div
-							v-if="questionDetails.data[`explanation_${index}`]"
-							class="mt-2 text-xs text-ink-gray-7"
-							v-show="showAnswers.length"
-						>
-							{{ questionDetails.data[`explanation_${index}`] }}
-						</div>
-					</div>
-					<div v-else-if="questionDetails.data.type == 'User Input'">
-						<FormControl
-							v-model="possibleAnswer"
-							type="textarea"
-							:disabled="showAnswers.length ? true : false"
-							class="my-2"
-						/>
-						<div v-if="showAnswers.length">
-							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
-								<template #prefix>
-									<span
-										class="lucide-check-circle w-4 h-4 text-ink-green-5 me-1"
-									/>
-								</template>
-							</Badge>
-							<Badge v-else theme="red" :label="__('Incorrect')">
-								<template #prefix>
-									<span class="lucide-x-circle w-4 h-4 text-ink-red-6 me-1" />
-								</template>
-							</Badge>
-						</div>
-					</div>
-					<div v-else>
-						<TextEditor
-							class="mt-4"
-							:content="possibleAnswer"
-							@change="(val) => (possibleAnswer = val)"
-							:editable="true"
-							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
-						/>
-					</div>
+					<component
+						:is="getQuestionType(questionDetails.data.type).PlayerComponent"
+						:question="questionDetails.data"
+						v-model:state="currentAnswerState"
+						:show-answers="showAnswers"
+						:quiz-show-answers="quiz.data.show_answers"
+					/>
 					<div class="flex items-center justify-between mt-8">
 						<Checkbox
 							v-if="!quiz.data.show_answers"
@@ -460,8 +374,8 @@
 </template>
 <script setup>
 import { sanitizeRichHTML } from '@/utils/sanitizeRichHTML'
+import { getQuestionType } from '@/questionTypes'
 import {
-	Badge,
 	Button,
 	call,
 	Checkbox,
@@ -469,8 +383,6 @@ import {
 	Dialog,
 	LoadingIndicator,
 	ListView,
-	TextEditor,
-	FormControl,
 	toast,
 } from 'frappe-ui'
 import {
@@ -488,14 +400,12 @@ import ProgressBar from '@/components/ProgressBar.vue'
 const user = inject('$user')
 const activeQuestion = ref(0)
 const currentQuestion = ref('')
-const MAX_OPTIONS = 10
-const selectedOptions = ref(Array(MAX_OPTIONS).fill(0))
+const currentAnswerState = ref({})
 const showAnswers = reactive([])
 const questions = ref([])
 const attemptedQuestions = ref([])
 const reviewQuestions = ref([])
 const showSubmissionConfirmation = ref(false)
-const possibleAnswer = ref(null)
 const timer = ref(0)
 let timerInterval = null
 
@@ -720,28 +630,15 @@ const switchQuestion = (questionNumber) => {
 }
 
 const loadSavedAnswers = () => {
-	let quizData = JSON.parse(localStorage.getItem(quiz.data.title))
-	if (quizData) {
-		let localQuestion = quizData.find(
-			(q) => q.question_name == currentQuestion.value,
-		)
-		if (localQuestion) {
-			let localAnswers = localQuestion.answer
-			if (localAnswers.length) {
-				if (questionDetails.data.type == 'Choices') {
-					localAnswers.forEach((answer) => {
-						for (let i = 1; i <= MAX_OPTIONS; i++) {
-							if (questionDetails.data[`option_${i}`] == answer) {
-								selectedOptions.value[i - 1] = 1
-							}
-						}
-					})
-				} else {
-					possibleAnswer.value = localAnswers[0]
-				}
-			}
-		}
-	}
+	const quizData = JSON.parse(localStorage.getItem(quiz.data.title) || 'null')
+	if (!quizData) return
+	const localQuestion = quizData.find(
+		(q) => q.question_name == currentQuestion.value,
+	)
+	if (!localQuestion?.answer?.length) return
+	currentAnswerState.value = getQuestionType(
+		questionDetails.data.type,
+	).loadAnswer(questionDetails.data, localQuestion.answer)
 }
 
 watch(
@@ -759,30 +656,11 @@ const startQuiz = () => {
 	if (quiz.data.duration) startTimer()
 }
 
-const markAnswer = (index) => {
-	if (!questionDetails.data.multiple)
-		selectedOptions.value.splice(
-			0,
-			selectedOptions.value.length,
-			...Array(MAX_OPTIONS).fill(0),
-		)
-	selectedOptions.value[index - 1] = selectedOptions.value[index - 1] ? 0 : 1
-}
-
 const getAnswers = () => {
-	let answers = []
-	if (!questionDetails.data) return answers
-	const type = questionDetails.data.type
-	if (type == 'Choices') {
-		selectedOptions.value.forEach((value, index) => {
-			if (selectedOptions.value[index])
-				answers.push(questionDetails.data[`option_${index + 1}`])
-		})
-	} else {
-		answers.push(possibleAnswer.value)
-	}
-
-	return answers
+	if (!questionDetails.data) return []
+	return getQuestionType(questionDetails.data.type)
+		.getAnswers(questionDetails.data, currentAnswerState.value)
+		.filter((a) => a !== null && a !== undefined)
 }
 
 const checkAnswer = () => {
@@ -804,7 +682,7 @@ const checkAnswer = () => {
 		onSuccess(data) {
 			let type = questionDetails.data.type
 			if (type == 'Choices') {
-				selectedOptions.value.forEach((option, index) => {
+				currentAnswerState.value.selectedOptions?.forEach((option, index) => {
 					if (option) {
 						showAnswers[index] = option && data[index]
 					} else if (data[index] == 2) {
@@ -857,13 +735,8 @@ const resetQuestion = () => {
 	// limit_questions_to.
 	if (activeQuestion.value == questions.value.length) return
 	activeQuestion.value = activeQuestion.value + 1
-	selectedOptions.value.splice(
-		0,
-		selectedOptions.value.length,
-		...Array(MAX_OPTIONS).fill(0),
-	)
+	currentAnswerState.value = {}
 	showAnswers.length = 0
-	possibleAnswer.value = null
 }
 
 const submitQuiz = () => {
@@ -904,13 +777,8 @@ const createSubmission = () => {
 
 const resetQuiz = () => {
 	activeQuestion.value = 0
-	selectedOptions.value.splice(
-		0,
-		selectedOptions.value.length,
-		...Array(MAX_OPTIONS).fill(0),
-	)
+	currentAnswerState.value = {}
 	showAnswers.length = 0
-	possibleAnswer.value = null
 	attemptedQuestions.value = []
 	quizSubmission.reset()
 	populateQuestions()

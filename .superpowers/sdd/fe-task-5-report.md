@@ -89,5 +89,26 @@ populated → component mounts (on next render cycle after question.type is set)
 `...question` which still has all `option_N`/`is_correct_N`/`explanation_N`/`possibility_N`
 fields (set by `populateFields()` and mutated by the author components).
 
-Reviewer reports from vue-frontend-reviewer and rtl-i18n-reviewer are running in background;
-findings will be addressed if any blocking issues are surfaced before commit.
+## rtl-i18n-reviewer findings and resolution
+
+**SHOULD-FIX (both applied, committed ed3a586c):**
+
+1. Interpolated label strings — `__('Option') + ' ' + n` and `__('Possibility') + ' ' + n`
+   break translation extraction and cause bidi reordering hazard. Fixed to
+   `__('Option {0}', [n])` / `__('Possibility {0}', [n])`.
+
+2. Icon-only trash buttons lacked `aria-label`. Fixed to
+   `:aria-label="__('Remove option {0}', [n])"` / `__('Remove possibility {0}', [n])"`.
+
+**Pre-existing (not touched per surgical-changes guideline):**
+
+- `<style>` block in Question.vue uses `theme('colors.gray.900')` for radio checked state
+  instead of brand tokens — pre-existing before this task.
+- Double-translation on `title` prop default — pre-existing before this task.
+
+**RTL layout verdict:** CLEAN — no physical directional Tailwind classes in any changed file.
+
+## vue-frontend-reviewer findings
+
+Agent still running at time of initial report; see separate notification if findings arrive.
+If no blocking issues surface, the two commits (d705236e, ed3a586c) are the final deliverable.

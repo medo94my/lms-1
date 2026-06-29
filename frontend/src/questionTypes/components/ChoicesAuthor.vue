@@ -7,12 +7,13 @@
 			<div v-for="n in visibleOptionCount" :key="n" class="space-y-4 py-2">
 				<div class="flex items-center justify-between">
 					<label class="block text-p-sm-medium text-ink-gray-7">
-						{{ __('Option') + ' ' + n }}
+						{{ __('Option {0}', [n]) }}
 					</label>
 					<Button
 						v-if="visibleOptionCount > 2"
 						variant="ghost"
 						size="sm"
+						:aria-label="__('Remove option {0}', [n])"
 						@click="removeOption(n)"
 					>
 						<span class="lucide-trash-2 size-4" />

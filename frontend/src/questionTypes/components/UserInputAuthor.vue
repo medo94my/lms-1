@@ -11,13 +11,14 @@
 			>
 				<FormControl
 					class="flex-1"
-					:label="__('Possibility') + ' ' + n"
+					:label="__('Possibility {0}', [n])"
 					v-model="question[`possibility_${n}`]"
 					:required="n == 1 ? true : false"
 				/>
 				<Button
 					v-if="visiblePossibilityCount > 1"
 					variant="ghost"
+					:aria-label="__('Remove possibility {0}', [n])"
 					@click="removePossibility(n)"
 				>
 					<span class="lucide-trash-2 size-4" />

@@ -110,12 +110,10 @@ describe('True/False helpers', () => {
 })
 
 describe('Fill in the Blank helpers', () => {
+	// Player receives the sanitized shape: labels only, no accepted answers.
 	const q = {
 		data: {
-			blanks: [
-				{ label: '1', accepted: ['a'] },
-				{ label: '2', accepted: ['b'] },
-			],
+			blanks: [{ label: '1' }, { label: '2' }],
 		},
 	}
 	it('getAnswers returns one entry per blank, empty for missing', () => {

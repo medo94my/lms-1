@@ -245,3 +245,35 @@ class TestMatchingPlugin(unittest.TestCase):
 		qt = get_question_type("Matching")
 		self.assertEqual(qt.live_check(q.name, ["Paris", "Berlin"]), [1, 0])
 		frappe.delete_doc("LMS Question", q.name, force=True)
+
+
+class TestOrderingPlugin(unittest.TestCase):
+	def _q(self):
+		q = frappe.new_doc("LMS Question")
+		q.question = "Order the planets by distance"
+		q.type = "Ordering"
+		q.data = json.dumps({"items": ["Mercury", "Venus", "Earth"]})
+		q.save()
+		return q
+
+	def test_validate_requires_two_items(self):
+		q = frappe.new_doc("LMS Question")
+		q.question = "Bad ordering"
+		q.type = "Ordering"
+		q.data = json.dumps({"items": ["only one"]})
+		self.assertRaises(frappe.ValidationError, q.save)
+
+	def test_score_absolute_position(self):
+		q = self._q()
+		qt = get_question_type("Ordering")
+		self.assertEqual(qt.score(q.name, ["Mercury", "Venus", "Earth"]), 1.0)
+		# first correct, last two swapped -> 1 of 3
+		self.assertAlmostEqual(qt.score(q.name, ["Mercury", "Earth", "Venus"]), 1 / 3)
+		self.assertEqual(qt.score(q.name, ["Earth", "Venus", "Mercury"]), 1 / 3)
+		frappe.delete_doc("LMS Question", q.name, force=True)
+
+	def test_live_check_per_position(self):
+		q = self._q()
+		qt = get_question_type("Ordering")
+		self.assertEqual(qt.live_check(q.name, ["Mercury", "Earth", "Venus"]), [1, 0, 0])
+		frappe.delete_doc("LMS Question", q.name, force=True)

@@ -37,3 +37,9 @@ class QuestionType:
 		legacy types read their flat columns inside the delegated helpers, so
 		the default returns the parsed JSON blob."""
 		return frappe.parse_json(question.get("data") or "{}")
+
+	def player_config(self, question) -> dict:
+		"""Render the data the learner-facing player needs, WITH THE ANSWER KEY
+		REMOVED. `question` is a row-like mapping whose `data` holds the raw JSON.
+		Default: expose nothing from data."""
+		return {}

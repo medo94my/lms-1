@@ -277,3 +277,49 @@ class TestOrderingPlugin(unittest.TestCase):
 		qt = get_question_type("Ordering")
 		self.assertEqual(qt.live_check(q.name, ["Mercury", "Earth", "Venus"]), [1, 0, 0])
 		frappe.delete_doc("LMS Question", q.name, force=True)
+
+
+class TestPlayerConfig(unittest.TestCase):
+	def test_default_is_empty_for_flat_and_true_false_types(self):
+		# Flat-column types and True/False expose nothing from data.
+		self.assertEqual(get_question_type("Choices").player_config({"data": None}), {})
+		self.assertEqual(get_question_type("User Input").player_config({"data": None}), {})
+		self.assertEqual(get_question_type("Open Ended").player_config({"data": None}), {})
+		tf = get_question_type("True/False")
+		self.assertEqual(tf.player_config({"data": json.dumps({"correct": True})}), {})
+
+	def test_fill_blank_keeps_labels_drops_accepted(self):
+		qt = get_question_type("Fill in the Blank")
+		row = {
+			"data": json.dumps(
+				{"blanks": [{"label": "1", "accepted": ["secret"]}, {"label": "2", "accepted": ["x"]}]}
+			)
+		}
+		cfg = qt.player_config(row)
+		self.assertEqual(cfg, {"blanks": [{"label": "1"}, {"label": "2"}]})
+		self.assertNotIn("accepted", json.dumps(cfg))
+		self.assertNotIn("secret", json.dumps(cfg))
+
+	def test_matching_exposes_lefts_and_shuffled_rights_no_pairing(self):
+		qt = get_question_type("Matching")
+		row = {
+			"data": json.dumps(
+				{"pairs": [{"left": "France", "right": "Paris"}, {"left": "Japan", "right": "Tokyo"}]}
+			)
+		}
+		cfg = qt.player_config(row)
+		self.assertEqual(cfg["lefts"], ["France", "Japan"])
+		self.assertEqual(sorted(cfg["rights"]), ["Paris", "Tokyo"])
+		self.assertNotIn("pairs", cfg)
+		# Only two keys — nothing that re-establishes the left->right mapping.
+		self.assertEqual(set(cfg.keys()), {"lefts", "rights"})
+
+	def test_ordering_shuffles_away_from_correct_order(self):
+		qt = get_question_type("Ordering")
+		correct = ["Mercury", "Venus", "Earth", "Mars"]
+		row = {"data": json.dumps({"items": correct})}
+		cfg = qt.player_config(row)
+		self.assertEqual(sorted(cfg["items"]), sorted(correct))
+		# Distinct 2+ items are guaranteed reordered.
+		self.assertNotEqual(cfg["items"], correct)
+		self.assertEqual(set(cfg.keys()), {"items"})

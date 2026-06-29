@@ -144,8 +144,84 @@ fields (set by `populateFields()` and mutated by the author components).
 **NIT (already fixed, committed ed3a586c):** ordinal label concatenation replaced with
 `__('Option {0}', [n])` / `__('Possibility {0}', [n])`.
 
+## Post-review fixes (independent review: C1 Critical, I1 Important, M2 cleanup)
+
+Commit `9d016c45` — `fix(quiz-fe): monotonic row-count watch + scope frappe-ui test mock`
+
+### C1 (Critical, FIXED) — deep watch caused a new add-row regression
+
+The `{ deep: true }` watch (from 6abe3e1a) recomputed the visible count via
+`Math.max(...)` on **every** mutation, including keystrokes. Sequence that broke:
+"Add Option" → count 3, `option_3` still null → type in any field → watch fires →
+`Math.max(2,1,2,0) = 2` → count snaps back to 2 and the just-added empty row vanishes.
+
+Fix = grow-only recompute. Keep `{ immediate: true, deep: true }`, but only ever
+**raise** the count, never lower it. `removeOption`/`removePossibility` keep their
+explicit decrements, so deletion still works and added-empty rows are preserved.
+
+ChoicesAuthor.vue:
+```js
+const populated = Math.max(
+	2,
+	...Array.from({ length: MAX_OPTIONS }, (_, i) =>
+		q[`option_${i + 1}`] ? i + 1 : 0,
+	),
+)
+if (populated > visibleOptionCount.value) visibleOptionCount.value = populated
+```
+UserInputAuthor.vue — identical pattern with `possibility_${i+1}`, floor `1`, and
+`visiblePossibilityCount`.
+
+### I1 (Important, FIXED) — global frappe-ui mock alias had too broad a blast radius
+
+The `find: /^frappe-ui$/` alias in `vitest.config.ts` injected the stub into **all**
+test files, so any spec importing frappe-ui transitively would silently get stubbed
+`createResource` (data:null) / div components → risk of false greens.
+
+- **Reverted** `vitest.config.ts` to its exact original (object-form `@` alias only;
+  `git diff` confirms it matches `09141429`).
+- **Mock now lives** as an explicit `vi.mock('frappe-ui', () => ({...}))` factory at the
+  top of `src/tests/questionTypes.test.ts` — the only spec that transitively imports the
+  author components via `@/questionTypes`. Factory stubs only `FormControl`, `Button`
+  (author components) and `Switch` (BooleanSwitch) — the full set of frappe-ui named
+  imports in that module graph. The test never mounts, so template-string stubs suffice.
+- **Deleted** the now-unused `src/__mocks__/frappe-ui.ts` (it lived under `src/`, not
+  adjacent to `node_modules`, so Vitest never auto-applied it; nothing imports it now).
+- **Confirmed** the other 17 test files still pass after the revert — proving none of
+  them depended on the global alias.
+
+### M2 (cleanup) — NOT reverted; explanation
+
+The trailing-comma changes on the three `submit()` call objects in `Question.vue` are
+**not** discretionary churn — they are produced by the repo's own PostToolUse
+`format-on-edit.sh` hook, which runs `prettier --write` on every edited `.vue` file.
+Verified facts:
+- Local `.prettierrc` is `{ semi:false, singleQuote:true }`; Prettier 3.8.1 defaults
+  `trailingComma` to `"all"`, which adds trailing commas to multiline call args.
+- `npx prettier --check` on the comma-less variant **fails** (Prettier wants them).
+- The pre-task base file (`8c8a3296`) was **already** prettier-noncompliant — the repo
+  ships noncompliant, and my legitimate edits triggered the hook to bring the whole file
+  CI-clean.
+
+Reverting would be auto-undone by the hook on the next edit and would leave the file
+failing `prettier --check`. Per CLAUDE.md the project formatter wins where it conflicts,
+so the commas stay. (A truly minimal diff would require a separate prior format-only
+commit on the base, which is out of scope.)
+
+### Verification
+
+```
+$ npx vitest run
+ Test Files  18 passed (18)
+      Tests  134 passed (134)
+
+$ npx vitest run src/tests/questionTypes.test.ts   # 7/7 pass
+$ npx prettier --check <all changed files>          # all clean
+```
+
 ## Final commits
 
 - `d705236e` refactor(quiz-fe): host per-type author components in Question modal
 - `ed3a586c` fix(quiz-fe): i18n placeholders + aria-labels in author components
 - `6abe3e1a` fix(quiz-fe): deep-watch question in author components so edit restores rows
+- `9d016c45` fix(quiz-fe): monotonic row-count watch + scope frappe-ui test mock

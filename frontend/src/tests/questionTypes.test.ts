@@ -151,11 +151,19 @@ describe('Matching helpers', () => {
 })
 
 describe('Ordering helpers', () => {
+	// Player receives the sanitized shape: items pre-shuffled by the server.
 	const q = { data: { items: ['a', 'b', 'c'] } }
 	it('getAnswers returns the current order, fixed length', () => {
 		expect(
 			getQuestionType('Ordering').getAnswers(q, { order: ['b', 'a'] })
 		).toEqual(['b', 'a', ''])
+	})
+	it('getAnswers length follows the server items, not the learner order', () => {
+		expect(getQuestionType('Ordering').getAnswers(q, { order: [] })).toEqual([
+			'',
+			'',
+			'',
+		])
 	})
 	it('loadAnswer restores order', () => {
 		expect(

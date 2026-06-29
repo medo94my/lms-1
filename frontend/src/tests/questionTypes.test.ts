@@ -14,6 +14,9 @@ vi.mock('frappe-ui', () => ({
 	Badge: { template: '<span><slot /></span>' },
 	TextEditor: { template: '<div />' },
 }))
+vi.mock('vuedraggable', () => ({
+	default: { template: '<div><slot /></div>' },
+}))
 
 import {
 	getQuestionType,
@@ -145,5 +148,19 @@ describe('Matching helpers', () => {
 		expect(
 			getQuestionType('Matching').loadAnswer(q, ['1', '2']).selections
 		).toEqual(['1', '2'])
+	})
+})
+
+describe('Ordering helpers', () => {
+	const q = { data: { items: ['a', 'b', 'c'] } }
+	it('getAnswers returns the current order, fixed length', () => {
+		expect(
+			getQuestionType('Ordering').getAnswers(q, { order: ['b', 'a'] })
+		).toEqual(['b', 'a', ''])
+	})
+	it('loadAnswer restores order', () => {
+		expect(
+			getQuestionType('Ordering').loadAnswer(q, ['c', 'b', 'a']).order
+		).toEqual(['c', 'b', 'a'])
 	})
 })

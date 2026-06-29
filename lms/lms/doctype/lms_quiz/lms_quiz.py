@@ -310,8 +310,12 @@ def check_answer(quiz: str, question: str, question_type: str, answers: str):
 			frappe.PermissionError,
 		)
 
+	question_type_def = get_question_type(question_type)
+	if not question_type_def.has_live_check:
+		frappe.throw(_("Live answer checking is not available for this question type."))
+
 	answers = answers and json.loads(answers)
-	return get_question_type(question_type).live_check(question, answers)
+	return question_type_def.live_check(question, answers)
 
 
 def get_question_details(question: str):

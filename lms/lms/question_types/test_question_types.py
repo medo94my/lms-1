@@ -111,3 +111,8 @@ class TestFractionalMarksAggregation(unittest.TestCase):
 		sub.append("result", {"marks": 0.5, "marks_out_of": 1, "is_correct": 0})
 		sub.validate_marks()
 		self.assertEqual(sub.score, 0.5)
+
+
+class TestLiveCheckGate(unittest.TestCase):
+	def test_open_ended_has_no_live_check(self):
+		self.assertFalse(get_question_type("Open Ended").has_live_check)

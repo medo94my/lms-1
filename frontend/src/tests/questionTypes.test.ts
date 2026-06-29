@@ -131,12 +131,11 @@ describe('Fill in the Blank helpers', () => {
 })
 
 describe('Matching helpers', () => {
+	// Player receives the sanitized shape: lefts + a shuffled rights pool, no pairs.
 	const q = {
 		data: {
-			pairs: [
-				{ left: 'A', right: '1' },
-				{ left: 'B', right: '2' },
-			],
+			lefts: ['A', 'B'],
+			rights: ['2', '1'],
 		},
 	}
 	it('getAnswers returns one entry per left, empty for missing', () => {

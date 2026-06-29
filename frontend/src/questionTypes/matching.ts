@@ -19,9 +19,9 @@ const Matching: QuestionTypeDef = {
 		}
 	},
 	getAnswers(question, state) {
-		const pairs = parseConfig(question).pairs || []
+		const lefts = parseConfig(question).lefts || []
 		const selections = state?.selections || []
-		return pairs.map((_: any, i: number) => selections[i] ?? '')
+		return lefts.map((_: any, i: number) => selections[i] ?? '')
 	},
 	loadAnswer(_question, savedAnswers) {
 		return { selections: savedAnswers ?? [] }

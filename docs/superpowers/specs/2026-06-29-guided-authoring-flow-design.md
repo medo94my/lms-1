@@ -21,12 +21,17 @@ content → Quiz**, wrapped by an onboarding/guidance layer. A creator-journey m
 - **No "what next" / blank screens.** After creating a course the creator lands
   on the *Settings* tab, not the editor; the course editor can show two empty
   panes; the lesson editor is a blank white rectangle.
-- **The onboarding checklist is effectively dead here and partly wrong.** Its
-  render gate is `is_system_manager && is_fc_site`
-  (`frontend/src/components/Sidebar/AppSidebar.vue:148`). `is_fc_site` means a
-  Frappe-Cloud-hosted site; this LMS runs on Docker, so the gate is false and
-  **the onboarding widget never renders on this deployment**. Two of its steps
-  also deep-link to the wrong tab.
+- **The onboarding checklist excludes regular creators and is partly wrong.**
+  It is set up only for system managers: `setUpOnboarding()`
+  (`frontend/src/components/Sidebar/AppSidebar.vue:643-650`) flips
+  `showOnboarding` true only `if (userResource.data?.is_system_manager)`. A
+  Course Creator (`is_instructor`) therefore never sees it. (The
+  `is_system_manager && is_fc_site` condition at line 148 is the unrelated
+  `TrialBanner`, not the onboarding gate.) Worse, **step completion is also
+  `is_system_manager`-gated** at each call site (`NewCourseModal`,
+  `ChapterModal`, `LessonForm`, `Question.vue`), so even if the widget were
+  shown to an instructor its steps would never auto-advance. Two steps also
+  deep-link to the wrong tab.
 
 ## Goal & scope
 
@@ -47,16 +52,22 @@ CTAs, and a non-invasive lesson-editor placeholder.
 
 ## Ground truth (current wiring this spec touches)
 
-- **Onboarding widget gate:** `frontend/src/components/Sidebar/AppSidebar.vue`
-  — `showOnboarding` is computed at ~line 148 as
-  `userResource.data?.is_system_manager && userResource.data?.is_fc_site`.
-  The role flags available on `userResource.data` include `is_system_manager`,
-  `is_moderator`, `is_instructor` (set at ~lines 644–656).
+- **Onboarding setup gate:** `frontend/src/components/Sidebar/AppSidebar.vue` —
+  `showOnboarding` is a `ref(false)` flipped true inside `setUpOnboarding()`
+  (~lines 643–650) only `if (userResource.data?.is_system_manager)`. The role
+  flags on `userResource.data` include `is_system_manager`, `is_moderator`,
+  `is_instructor`. An existing predicate `canCreateCourse()`
+  (`frontend/src/utils/index.js`, ~lines 800–806) returns
+  `!readOnlyMode && (is_instructor || is_moderator)`.
 - **Onboarding steps:** same file, `steps` reactive array (~lines 446–508).
   `create_first_chapter` and `create_first_lesson` push
   `{ name: 'CourseDetail', params: { courseName }, hash: '#settings' }` — the
   wrong tab. `create_first_course` (→ `Courses`) and `create_first_quiz`
   (→ `Quizzes`) are already correct.
+- **Step-completion gates:** each push of `updateOnboardingStep(...)` is wrapped
+  in `if (user.data?.is_system_manager)` — `NewCourseModal.vue` (~line 326),
+  `ChapterModal.vue` (~line 141), `LessonForm.vue` (~line 596), `Question.vue`
+  (~line 233).
 - **Course detail tabs:** `frontend/src/pages/Courses/CourseDetail.vue` — `tabs`
   array (~lines 305–326) in order: `Overview` (0), `Dashboard` (1),
   `Course editor` (2), `Settings` (3). The hash↔tab sync (~lines 274–292)
@@ -85,32 +96,46 @@ translated hash string in multiple places, add a **single stable tab key** the
 deep-links can target.
 
 **Approach:** in `CourseDetail.vue`, give each tab a locale-independent `key`
-(e.g. `'overview' | 'dashboard' | 'editor' | 'settings'`) and resolve the
-incoming `route.hash` against `tab.key` (falling back to the existing
-label-match for backward compatibility with any bookmarked `#settings` links).
-Deep-links elsewhere then push `hash: '#editor'`. This keeps one source of truth
-for the editor tab's hash and removes the locale fragility for the new links.
+(`'overview' | 'dashboard' | 'editor' | 'settings'`) and resolve the incoming
+`route.hash` against `tab.key`, falling back to the existing
+`tab.label.toLowerCase()` match so any bookmarked `#settings` / `#course editor`
+links still work. The hash↔tab writeback (the `watch(tabIndex, …)` at
+`CourseDetail.vue:284-290`) writes `#${tab.key}`. Deep-links elsewhere push
+`hash: '#editor'`. This is one source of truth for the editor tab's hash and
+removes the locale fragility (today the editor tab's working hash is the
+translated label lowercased, `#course editor`).
 
-*(If, during planning, the existing label-based hash proves load-bearing for
-other links, the fallback match preserves them — no existing deep-link breaks.)*
+`CourseEditor.vue` currently hardcodes the English `'#course editor'` in three
+places (`syncSelectedToUrl` ~line 131, `syncModeToUrl` ~line 140, the
+stale-selection watcher ~line 292); update those to `'#editor'` for consistency
+with the new key so editor-internal route writes match the tab resolution.
 
 ### B. Sidebar onboarding checklist — visibility + correctness
 
-`AppSidebar.vue`:
+**Single predicate.** Add a pure helper `isCourseCreator(user)` returning
+`is_instructor || is_moderator || is_system_manager` (a lean, unit-testable
+module, e.g. `frontend/src/utils/roles.ts`). `is_system_manager` is included so
+the current audience never regresses. Use it at every onboarding gate so "who
+can author" has one source of truth. (`canCreateCourse()` stays untouched to
+avoid changing the Create-course button's behavior.)
 
-1. **Widen the gate.** Replace `showOnboarding`'s
-   `is_system_manager && is_fc_site` condition with
-   `is_instructor || is_moderator || is_system_manager` (a Course Creator is
-   `is_instructor`; `is_moderator`/`is_system_manager` are kept so the original
-   audience never regresses). Drop the `is_fc_site` restriction so the checklist
-   renders on this (Docker) deployment. The existing `!isOnboardingStepsCompleted`
-   condition still hides it once the creator finishes, so it does not nag forever.
-2. **Fix the deep-links.** Change `create_first_chapter` and
+1. **Widen visibility.** In `AppSidebar.vue` `setUpOnboarding()`, change the
+   `if (userResource.data?.is_system_manager)` guard to
+   `if (isCourseCreator(userResource.data))`. The existing
+   `!isOnboardingStepsCompleted` condition still hides the widget once the
+   creator finishes, so it does not nag forever.
+2. **Widen step completion.** Change the four `if (user.data?.is_system_manager)`
+   guards that wrap `updateOnboardingStep(...)` to
+   `if (isCourseCreator(user.data))` — in `NewCourseModal.vue`,
+   `ChapterModal.vue`, `LessonForm.vue`, `Question.vue` — so an instructor's
+   steps actually advance.
+3. **Fix the deep-links.** Change `create_first_chapter` and
    `create_first_lesson` `onClick` to push the **Course editor** tab
    (`hash: '#editor'` per §A) instead of `#settings`. Keep their `getFirstCourse`
    lookup and the `dependsOn` ordering unchanged.
 
-No change to step definitions, completion tracking, or the help modal.
+No change to step definitions, the `useOnboarding('learning')` tracking
+mechanism, or the help modal.
 
 ### C. Post-create landing
 
@@ -158,11 +183,14 @@ affordance.
 
 | Unit | File | Responsibility / change |
 |---|---|---|
-| Onboarding gate + steps | `AppSidebar.vue` | widen `showOnboarding`; fix two step deep-links to `#editor` |
-| Tab key + hash resolve | `CourseDetail.vue` | add stable `key` per tab; resolve hash by key with label fallback |
+| Role predicate | `utils/roles.ts` (new) | pure `isCourseCreator(user)`; single source of truth for onboarding gates |
+| Tab resolution helper | `utils/courseTabs.ts` (new) | pure `resolveTabIndex(tabs, hash)`; key match + label fallback |
+| Onboarding visibility + steps | `AppSidebar.vue` | `setUpOnboarding` gate → `isCourseCreator`; fix two step deep-links to `#editor` |
+| Step completion gates | `NewCourseModal.vue`, `ChapterModal.vue`, `LessonForm.vue`, `Question.vue` | swap `is_system_manager` guard → `isCourseCreator` |
+| Tab key + hash resolve | `CourseDetail.vue` | add stable `key` per tab; use `resolveTabIndex`; writeback `#${key}` |
 | Post-create landing | `NewCourseModal.vue` | route to `#editor` after create |
-| Editor empty pane | `CourseEditor.vue` | context-aware left-pane empty message |
-| Outline / chapter empty states | `CourseOutline.vue`, `ChapterRow.vue` | one clear primary CTA per empty state |
+| Editor tab hash writes | `CourseEditor.vue` | `'#course editor'` → `'#editor'` (3 spots); context-aware left-pane empty message |
+| Outline / chapter empty states | `CourseEditor.vue`, `ChapterRow.vue` | one clear primary CTA per empty state (CourseOutline empty state already good) |
 | Lesson empty nudge | `LessonForm.vue` | non-invasive empty-body placeholder + visible help |
 
 Each unit is independently testable and has a single responsibility; none
@@ -180,16 +208,19 @@ the existing `useOnboarding('learning')` calls at create-course / create-chapter
 
 ## Testing / success criteria
 
-- **Vitest (unit, where logic is isolable):**
-  - The onboarding `showOnboarding` predicate returns true for an instructor,
-    a moderator, and a system manager, and false for a plain student —
-    independent of `is_fc_site`.
-  - `create_first_chapter` / `create_first_lesson` step targets resolve to the
-    Course-editor tab key (`'editor'`/`#editor`), not `#settings`.
-  - `CourseDetail` hash↔tab resolution maps `#editor` to the Course-editor tab,
-    and still maps a legacy `#settings` to Settings (fallback).
-  - Empty-state components render their primary CTA under the empty condition
-    and hide it when populated.
+- **Vitest unit (pure helpers — full TDD):**
+  - `isCourseCreator(user)` returns true for an instructor, a moderator, and a
+    system manager; false for a plain student and for `undefined`/`null`.
+  - `resolveTabIndex(tabs, hash)` maps `#editor` to the Course-editor tab by
+    key, still maps a legacy `#course editor` / `#settings` by label fallback,
+    and returns 0 for an unknown/empty hash.
+- **Vitest component mount (where the component is light enough):**
+  - `ChapterRow` with an empty `lessons` array renders the "no lessons yet"
+    hint + the Add-Lesson affordance; with lessons it does not.
+- **Suite-green + manual preview (heavy components — `CourseEditor`,
+  `LessonForm`, `AppSidebar` pull in resources/router/EditorJS, so they are not
+  unit-mounted):** the full Vitest suite stays green, and the manual checklist
+  below is verified in the preview.
 - **Manual preview (preview deploy):** as a Course Creator (instructor, not
   system manager) — the sidebar checklist appears; clicking "Add your first
   chapter" lands on the Course editor; creating a course lands on the Course

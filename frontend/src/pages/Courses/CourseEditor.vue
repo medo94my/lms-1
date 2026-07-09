@@ -8,12 +8,21 @@
 				/>
 				<div
 					v-else-if="!selected"
-					class="flex flex-col items-center justify-center h-full text-ink-gray-5"
+					class="flex flex-col items-center justify-center h-full gap-2 text-ink-gray-5"
 				>
 					<span class="lucide-book-open size-8" />
-					<div>
-						{{ __('Select a lesson on the right to start editing.') }}
-					</div>
+					<template v-if="hasChapters">
+						<div>
+							{{ __('Select a lesson on the right to start editing.') }}
+						</div>
+					</template>
+					<template v-else>
+						<div>{{ __('Add a chapter to begin building your course.') }}</div>
+						<Button variant="solid" @click="openAddChapter">
+							<template #prefix><span class="lucide-plus size-4" /></template>
+							{{ __('Create chapter') }}
+						</Button>
+					</template>
 				</div>
 				<LessonForm
 					v-else-if="mode === 'edit'"
@@ -79,7 +88,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { createResource } from 'frappe-ui'
+import { createResource, Button } from 'frappe-ui'
 import { useSidebar } from '@/stores/sidebar'
 import CourseOutline from '@/components/CourseOutline.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
@@ -247,6 +256,8 @@ const outline = createResource({
 	// parent's course resource has loaded.
 	auto: false,
 })
+
+const hasChapters = computed(() => (outline.data?.length ?? 0) > 0)
 
 // Drive initial selection from outline.data instead of the resource
 // onSuccess hook — that runs on every reload and skips cache hits, so a

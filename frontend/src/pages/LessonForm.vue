@@ -65,6 +65,13 @@
 			</details>
 
 			<!-- Lesson content -->
+			<p v-if="bodyIsEmpty" class="mb-2 text-p-sm text-ink-gray-5">
+				{{
+					__(
+						'Start typing, or use the + button to add a video, image, or quiz.'
+					)
+				}}
+			</p>
 			<BlockEditor
 				ref="editor"
 				:uploadContext="contentUploadContext"
@@ -483,6 +490,11 @@ const storedContentHasBody = () => {
 		return false
 	}
 }
+
+// Drives the empty-body nudge. Reacts to lesson.content, which updates on load
+// and on autosave, so the hint shows for a fresh/empty lesson and clears once
+// the body has saved content. The full insert-menu redesign is sub-project 2.
+const bodyIsEmpty = computed(() => !storedContentHasBody())
 
 // .catch(() => null): an editor whose EditorJS instance is being destroyed
 // mid-save can reject. Without this Promise.all would reject and the whole

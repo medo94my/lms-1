@@ -51,9 +51,10 @@
 						:text="__('How to edit a lesson')"
 					>
 						<Button variant="ghost" @click="showLessonHelp = true">
-							<template #icon>
+							<template #prefix>
 								<span class="lucide-info size-4" />
 							</template>
+							{{ __('Help') }}
 						</Button>
 					</Tooltip>
 					<Button

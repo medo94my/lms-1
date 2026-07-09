@@ -249,7 +249,7 @@ const defaultOpen = computed<boolean>(() => {
 const isScormChapterComplete = computed<boolean>(() =>
 	Boolean(
 		props.chapter.lessons?.length &&
-		props.chapter.lessons.every((l) => l.is_complete)
+			props.chapter.lessons.every((l) => l.is_complete)
 	)
 )
 

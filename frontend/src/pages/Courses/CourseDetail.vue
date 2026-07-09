@@ -255,7 +255,7 @@ const publishToggle = createResource({
 		const msg =
 			typeof err === 'string'
 				? err
-				: (err.messages?.[0] ?? __('Could not update publish status'))
+				: err.messages?.[0] ?? __('Could not update publish status')
 		toast.error(msg)
 	},
 }) as Resource<unknown>

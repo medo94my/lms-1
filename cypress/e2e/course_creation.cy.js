@@ -212,7 +212,7 @@ describe("Course Creation", () => {
 		cy.contains("Delete this lesson?");
 		cy.get("[data-dismissable-layer]").contains("button", "Delete").click();
 		cy.contains("Lesson deleted successfully");
-		cy.contains("Select a lesson on the right to start editing.").should(
+		cy.contains("Select a lesson from the list to start editing.").should(
 			"be.visible"
 		);
 		cy.contains(".outline-lesson", "Untitled lesson").should("not.exist");

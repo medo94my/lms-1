@@ -138,6 +138,7 @@ import MultiLink from '@/components/Controls/MultiLink.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { cleanError, sanitizeHTML, createLMSCategory } from '@/utils'
+import { isCourseCreator } from '@/utils/roles'
 import type { Resource } from '@/types/api'
 
 interface InstructorOption {
@@ -321,7 +322,7 @@ const saveCourse = (close: () => void = () => {}) => {
 					params: { courseName: data.name },
 					hash: '#settings',
 				})
-				if (user.data?.is_system_manager) {
+				if (isCourseCreator(user.data)) {
 					updateOnboardingStep('create_first_course', true, false, () => {
 						localStorage.setItem('firstCourse', data.name)
 					})

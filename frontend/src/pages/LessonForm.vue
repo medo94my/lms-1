@@ -94,6 +94,7 @@ import {
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
+import { isCourseCreator } from '@/utils/roles'
 import { hasEditorContent, shouldSkipLessonSave } from '@/utils/lessonForm'
 import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
@@ -593,7 +594,7 @@ const createNewLesson = () => {
 					{ lesson: data.name },
 					{
 						onSuccess() {
-							if (user.data?.is_system_manager)
+							if (isCourseCreator(user.data))
 								updateOnboardingStep('create_first_lesson')
 
 							capture('lesson_created')

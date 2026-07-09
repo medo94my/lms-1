@@ -81,6 +81,7 @@ import { watch, reactive, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { getQuestionType, questionTypeOptions } from '@/questionTypes'
+import { isCourseCreator } from '@/utils/roles'
 
 const show = defineModel()
 const quiz = defineModel('quiz')
@@ -230,7 +231,7 @@ const addQuestionRow = (question) => {
 		},
 		{
 			onSuccess() {
-				if (user.data?.is_system_manager)
+				if (isCourseCreator(user.data))
 					updateOnboardingStep('create_first_quiz')
 
 				show.value = false

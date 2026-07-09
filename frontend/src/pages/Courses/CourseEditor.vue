@@ -13,7 +13,7 @@
 					<span class="lucide-book-open size-8" />
 					<template v-if="hasChapters">
 						<div>
-							{{ __('Select a lesson on the right to start editing.') }}
+							{{ __('Select a lesson from the list to start editing.') }}
 						</div>
 					</template>
 					<template v-else>

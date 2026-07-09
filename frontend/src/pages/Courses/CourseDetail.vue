@@ -51,9 +51,10 @@
 						:text="__('How to edit a lesson')"
 					>
 						<Button variant="ghost" @click="showLessonHelp = true">
-							<template #icon>
+							<template #prefix>
 								<span class="lucide-info size-4" />
 							</template>
+							{{ __('Help') }}
 						</Button>
 					</Tooltip>
 					<Button
@@ -161,6 +162,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
+import { resolveTabIndex } from '@/utils/courseTabs'
 import LayoutHeader from '@/components/Layouts/LayoutHeader.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
 import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'
@@ -271,20 +273,15 @@ onMounted(() => {
 })
 
 const updateTabIndex = () => {
-	const hash = route.hash
-	if (hash) {
-		tabs.value.forEach((tab, index) => {
-			if (tab.label?.toLowerCase() === hash.replace('#', '')) {
-				tabIndex.value = index
-			}
-		})
-	}
+	if (!route.hash) return
+	tabIndex.value = resolveTabIndex(tabs.value, route.hash)
 }
 
 watch(tabIndex, () => {
 	const tab = tabs.value[tabIndex.value]
-	if (tab.label != route.hash.replace('#', '')) {
-		router.push({ ...route, hash: `#${tab.label.toLowerCase()}` })
+	const current = route.hash.replace('#', '')
+	if (tab.key !== current && tab.label?.toLowerCase() !== current) {
+		router.push({ ...route, hash: `#${tab.key}` })
 	}
 })
 
@@ -302,23 +299,28 @@ const course = createResource({
 	auto: true,
 }) as Resource<CourseDetails | null>
 
-const tabs = ref<TabDef[]>([
+type EditorTab = TabDef & { key: string }
+const tabs = ref<EditorTab[]>([
 	{
+		key: 'overview',
 		label: __('Overview'),
 		component: markRaw(CourseOverview),
 		icon: 'lucide-list',
 	},
 	{
+		key: 'dashboard',
 		label: __('Dashboard'),
 		component: markRaw(CourseDashboard),
 		icon: 'lucide-trending-up',
 	},
 	{
+		key: 'editor',
 		label: __('Course editor'),
 		component: markRaw(CourseEditor),
 		icon: 'lucide-book-open',
 	},
 	{
+		key: 'settings',
 		label: __('Settings'),
 		component: markRaw(CourseForm),
 		icon: 'lucide-settings-2',

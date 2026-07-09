@@ -86,6 +86,7 @@ import {
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { reactive, watch, inject } from 'vue'
 import { getFileSize } from '@/utils/'
+import { isCourseCreator } from '@/utils/roles'
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import type { ChapterDetailInput, SessionUser } from '@/types/api'
 
@@ -138,7 +139,7 @@ const addChapter = async (close: () => void) => {
 				return validateChapter()
 			},
 			onSuccess: () => {
-				if (user.data?.is_system_manager)
+				if (isCourseCreator(user.data))
 					updateOnboardingStep('create_first_chapter')
 
 				capture('chapter_created')

@@ -65,6 +65,13 @@
 			</details>
 
 			<!-- Lesson content -->
+			<p v-if="bodyIsEmpty" class="mb-2 text-p-sm text-ink-gray-5">
+				{{
+					__(
+						'Start typing, or use the + button to add a video, image, or quiz.'
+					)
+				}}
+			</p>
 			<BlockEditor
 				ref="editor"
 				:uploadContext="contentUploadContext"
@@ -94,6 +101,7 @@ import {
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
+import { isCourseCreator } from '@/utils/roles'
 import { hasEditorContent, shouldSkipLessonSave } from '@/utils/lessonForm'
 import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
@@ -483,6 +491,11 @@ const storedContentHasBody = () => {
 	}
 }
 
+// Drives the empty-body nudge. Reacts to lesson.content, which updates on load
+// and on autosave, so the hint shows for a fresh/empty lesson and clears once
+// the body has saved content. The full insert-menu redesign is sub-project 2.
+const bodyIsEmpty = computed(() => !storedContentHasBody())
+
 // .catch(() => null): an editor whose EditorJS instance is being destroyed
 // mid-save can reject. Without this Promise.all would reject and the whole
 // persist — including the stored-content fallback and the staged title — is
@@ -593,7 +606,7 @@ const createNewLesson = () => {
 					{ lesson: data.name },
 					{
 						onSuccess() {
-							if (user.data?.is_system_manager)
+							if (isCourseCreator(user.data))
 								updateOnboardingStep('create_first_lesson')
 
 							capture('lesson_created')

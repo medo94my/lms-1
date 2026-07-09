@@ -181,13 +181,23 @@ describe("Course Creation", () => {
 		// the editor; the title is edited inline on the lesson itself and the
 		// debounced autosave persists it (no modal).
 		cy.button("Add Lesson", { timeout: 10000 }).click();
+		// On lesson open, LessonForm autofocuses the body editor ("blinking caret
+		// ready on open") asynchronously, after the content renders. If we start
+		// typing the title before that fires, the async focus() yanks focus into
+		// the EditorJS body mid-type and splits the text ("Test Les" + "son"). Wait
+		// for the body autofocus to land, then take focus back to the title.
+		cy.get(".codex-editor__redactor [contenteditable='true']", {
+			timeout: 15000,
+		}).should("be.focused");
 		// "Add Lesson" prefills the title with "Untitled lesson", so clear it by
 		// selecting all + backspace (a plain .clear() doesn't reliably overwrite
 		// the prefilled default) before typing the real title.
 		cy.get("textarea.lesson-title", { timeout: 15000 })
 			.should("have.value", "Untitled lesson")
+			.focus()
 			.type("{selectall}{backspace}")
-			.type("Test Lesson");
+			.type("Test Lesson")
+			.should("have.value", "Test Lesson");
 
 		// The title edit arms a debounced autosave; once it persists, CourseEditor
 		// reflects the new title in the shared outline. Assert against the outline
@@ -212,7 +222,7 @@ describe("Course Creation", () => {
 		cy.contains("Delete this lesson?");
 		cy.get("[data-dismissable-layer]").contains("button", "Delete").click();
 		cy.contains("Lesson deleted successfully");
-		cy.contains("Select a lesson on the right to start editing.").should(
+		cy.contains("Select a lesson from the list to start editing.").should(
 			"be.visible"
 		);
 		cy.contains(".outline-lesson", "Untitled lesson").should("not.exist");

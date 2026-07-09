@@ -255,6 +255,7 @@
 
 <script setup>
 import { getSidebarLinks } from '@/utils'
+import { isCourseCreator } from '@/utils/roles'
 import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
@@ -469,7 +470,7 @@ const steps = reactive([
 				router.push({
 					name: 'CourseDetail',
 					params: { courseName: course },
-					hash: '#settings',
+					hash: '#editor',
 				})
 			} else {
 				router.push({ name: 'Courses', query: { newCourse: '1' } })
@@ -489,7 +490,7 @@ const steps = reactive([
 				router.push({
 					name: 'CourseDetail',
 					params: { courseName: course },
-					hash: '#settings',
+					hash: '#editor',
 				})
 			} else {
 				router.push({ name: 'Courses', query: { newCourse: '1' } })
@@ -641,7 +642,7 @@ const articles = ref([
 ])
 
 const setUpOnboarding = () => {
-	if (userResource.data?.is_system_manager) {
+	if (isCourseCreator(userResource.data)) {
 		onboardingDetails = useOnboarding('learning')
 		onboardingDetails.setUp(steps)
 		isOnboardingStepsCompleted = onboardingDetails.isOnboardingStepsCompleted

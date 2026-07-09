@@ -131,6 +131,12 @@
 					</div>
 				</template>
 			</Draggable>
+			<div
+				v-if="allowEdit && !chapter.lessons?.length"
+				class="ps-8 pt-2 text-sm text-ink-gray-5"
+			>
+				{{ __('No lessons yet — add your first one below.') }}
+			</div>
 			<div v-if="allowEdit" class="flex mt-2 mb-4 ps-8">
 				<Button :loading="creatingLesson" @click="addLesson">
 					<template #prefix>

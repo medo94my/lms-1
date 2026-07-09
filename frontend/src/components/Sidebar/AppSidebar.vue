@@ -470,7 +470,7 @@ const steps = reactive([
 				router.push({
 					name: 'CourseDetail',
 					params: { courseName: course },
-					hash: '#settings',
+					hash: '#editor',
 				})
 			} else {
 				router.push({ name: 'Courses', query: { newCourse: '1' } })
@@ -490,7 +490,7 @@ const steps = reactive([
 				router.push({
 					name: 'CourseDetail',
 					params: { courseName: course },
-					hash: '#settings',
+					hash: '#editor',
 				})
 			} else {
 				router.push({ name: 'Courses', query: { newCourse: '1' } })

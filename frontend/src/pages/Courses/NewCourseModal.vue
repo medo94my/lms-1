@@ -320,7 +320,7 @@ const saveCourse = (close: () => void = () => {}) => {
 				router.push({
 					name: 'CourseDetail',
 					params: { courseName: data.name },
-					hash: '#settings',
+					hash: '#editor',
 				})
 				if (isCourseCreator(user.data)) {
 					updateOnboardingStep('create_first_course', true, false, () => {
